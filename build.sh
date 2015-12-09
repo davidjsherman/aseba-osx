@@ -16,7 +16,7 @@ cmake\
  "$WORKSPACE/source/enki"
 make
 
-mkdir -p "$WORKSPACE/build/aseba”
+mkdir -p "$WORKSPACE/build/aseba"
 cd "$WORKSPACE/build/aseba"
 cmake\
  -D "dashel_DIR=$WORKSPACE\build\dashel"\
