@@ -23,6 +23,7 @@ cmake\
  -D "DASHEL_INCLUDE_DIR=$WORKSPACE/source/dashel"\
  -D "DASHEL_LIBRARY=$WORKSPACE/build/dashel/libdashel.a"\
  "$WORKSPACE/source/aseba"
+make
 
 cd "$WORKSPACE"
 env
