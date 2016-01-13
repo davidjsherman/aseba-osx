@@ -26,7 +26,7 @@ mkdir -p "$WORKSPACE/build/aseba"
 cd "$WORKSPACE/build/aseba"
 cmake\
  -D "CMAKE_BUILD_TYPE=Release"\
- -D "CMAKE_OSX_ARCHITECTURES=i386;x86_64"\
+ -D "CMAKE_OSX_ARCHITECTURES=x86_64"\
  -D "CMAKE_OSX_DEPLOYMENT_TARGET=10.6"\
  -D "CMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"\
  -D "dashel_DIR=$WORKSPACE/build/dashel"\
