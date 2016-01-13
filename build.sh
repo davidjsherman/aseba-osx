@@ -29,7 +29,7 @@ cmake\
  -D "CMAKE_OSX_ARCHITECTURES=i386;x86_64"\
  -D "CMAKE_OSX_DEPLOYMENT_TARGET=10.6"\
  -D "CMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.11.sdk"\
- -D "dashel_DIR=$WORKSPACE\build\dashel"\
+ -D "dashel_DIR=$WORKSPACE/build/dashel"\
  -D "DASHEL_INCLUDE_DIR=$WORKSPACE/source/dashel"\
  -D "DASHEL_LIBRARY=$WORKSPACE/build/dashel/libdashel.dylib"\
  -D "ENKI_INCLUDE_DIR=$WORKSPACE/source/enki"\
