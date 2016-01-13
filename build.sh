@@ -33,7 +33,7 @@ cmake\
  -D "DASHEL_INCLUDE_DIR=$WORKSPACE/source/dashel"\
  -D "DASHEL_LIBRARY=$WORKSPACE/build/dashel/libdashel.dylib"\
  -D "ENKI_INCLUDE_DIR=$WORKSPACE/source/enki"\
- -D "ENKI_LIBRARY=$WORKSPACE/build/enki/libenki.a"\
+ -D "ENKI_LIBRARY=$WORKSPACE/build/enki/enki/libenki.a"\
  -D "ENKI_VIEWVER_LIBRARY=$WORKSPACE/build/enki/viewer/libenkiviewer.a"\
  -D "QWT_INCLUDE_DIR=$ASEBA_DEP/qwt-6.1.2/src"\
  -D "QWT_LIBRARIES=$ASEBA_DEP/qwt-6.1.2/lib/qwt.framework/"\
