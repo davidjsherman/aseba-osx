@@ -37,7 +37,7 @@ cmake\
  -D "ENKI_VIEWVER_LIBRARY=$WORKSPACE/build/enki/viewer/libenkiviewer.a"\
  -D "QWT_INCLUDE_DIR=$ASEBA_DEP/qwt-5.2.1/src"\
  -D "QWT_LIBRARIES=$ASEBA_DEP/qwt-5.2.1/lib/libqwt5.a"\
- -D "QT_QMAKE_EXECUTABLE=$ASEBA_DEP/qt-everywhere-opensource-src-4.8.7/bin"
+ -D "QT_QMAKE_EXECUTABLE=$ASEBA_DEP/qt-everywhere-opensource-src-4.8.7/bin/qmake"
  "$WORKSPACE/source/aseba"
 make
 
