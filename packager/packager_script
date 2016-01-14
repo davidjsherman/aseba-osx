@@ -1,8 +1,8 @@
 #!/bin/bash
-your_aseba_path='/Users/riedo/Prog/aseba/aseba'
-your_qt_path='/usr/local/Trolltech/Qt-4.8.5'
-your_qwt_path='/Users/riedo/Prog/qwt/qwt-6.0'
-your_dashel_path='/Users/riedo/Prog/dashel'
+your_aseba_path='/Users/administrator/jenkins/workspace/aseba.osx/build/aseba/'
+your_qt_path='/usr/local/Trolltech/Qt-4.8.7'
+your_qwt_path='/usr/local/qwt-6.1.2'
+your_dashel_path='/Users/administrator/jenkins/workspace/aseba.osx/build/dashel'
 
 
 ################################################
@@ -58,7 +58,7 @@ do
 	install_name_tool -change $your_qt_path/lib/libz.1.2.3.dylib @executable_path/../Frameworks/libz.1.2.3.dylib $qtlib.framework/Versions/4/$qtlib
 	install_name_tool -change $your_qt_path/lib/libQtCLucene.4.dylib @executable_path/../Frameworks/libQtCLucene.4.8.5.dylib $qtlib.framework/Versions/4/$qtlib
 	install_name_tool -id  @executable_path/../Frameworks/$qtlib.framework/Versions/4/$qtlib $qtlib.framework/Versions/4/$qtlib
-	#otool -L $qtlib.framework/Versions/4/$qtlib 
+	otool -L $qtlib.framework/Versions/4/$qtlib 
 done
 
 
@@ -67,24 +67,24 @@ install_name_tool -id  @executable_path/../Frameworks/libqwt.6.0.3.dylib libqwt.
 install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui libqwt.6.0.3.dylib
 install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libqwt.6.0.3.dylib
 install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg libqwt.6.0.3.dylib
-#otool -L libqwt.6.0.3.dylib
+otool -L libqwt.6.0.3.dylib
 
 
 cp $your_dashel_path/libdashel.1.0.8.dylib .
 install_name_tool -id  @executable_path/../Frameworks/libdashel.1.0.8.dylib libdashel.1.0.8.dylib
-#otool -L libdashel.1.0.8.dylib
+otool -L libdashel.1.0.8.dylib
 
 
 cp $your_qt_path/lib/libQtCLucene.4.8.5.dylib .
 install_name_tool -id @executable_path/../Frameworks/libQtCLucene.4.8.5.dylib libQtCLucene.4.8.5.dylib
 install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libQtCLucene.4.8.5.dylib
-#otool -L libQtCLucene.4.8.5.dylib
+otool -L libQtCLucene.4.8.5.dylib
 
 cp $your_qt_path/plugins/sqldrivers/libqsqlite.dylib .
 install_name_tool -id @executable_path/../Plugins/sqldrivers/libraries/libqsqlite.dylib libqsqlite.dylib 
 install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libqsqlite.dylib
 install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4/QtSql libqsqlite.dylib
-#otool -L libqsqlite.dylib
+otool -L libqsqlite.dylib
 
 for formatplugin in "libqgif" "libqico" "libqjpeg" "libqmng" "libqsvg" "libqtga" "libqtiff"
 do
@@ -95,7 +95,7 @@ do
 	install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4/QtSql $formatplugin.dylib
 	install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml $formatplugin.dylib
 	install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg $formatplugin.dylib
-	#otool -L $formatplugin.dylib
+	otool -L $formatplugin.dylib
 done
 
 
@@ -105,7 +105,7 @@ install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @
 install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui libqsvgicon.dylib
 install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml libqsvgicon.dylib
 install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg libqsvgicon.dylib
-#otool -L libqsvgicon.dylib
+otool -L libqsvgicon.dylib
 
 cd ..
 
@@ -140,7 +140,7 @@ do
 	install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg $asebaexec
 	install_name_tool -change $your_qwt_path/lib/libqwt.6.0.3.dylib @executable_path/../Frameworks/libqwt.6.0.3.dylib $asebaexec
 	install_name_tool -change $your_dashel_path/libdashel.1.dylib @executable_path/../Frameworks/libdashel.1.0.8.dylib $asebaexec
-    #otool -L $asebaexec
+    otool -L $asebaexec
 done
 
 
