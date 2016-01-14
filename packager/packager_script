@@ -1,5 +1,5 @@
 #!/bin/bash
-your_aseba_path='$WORKSPACE/build/aseba/'
+your_aseba_path='$WORKSPACE/build/aseba'
 your_qt_path='/usr/local/Trolltech/Qt-4.8.7'
 your_qwt_path='/usr/local/qwt-6.1.2'
 your_dashel_path='$WORKSPACE/build/dashel'
@@ -20,7 +20,7 @@ mkdir bin
 for asebaapps in "Aseba Playground.app" "Aseba Challenge.app" "Aseba Studio.app" "Thymio Firmware Upgrader.app" "Aseba Studio for Thymio.app" "Thymio VPL.app"
 do
 	mkdir -p "$asebaapps/Contents/"{MacOS,Plugins/{imageformats,sqldrivers,iconengines},Resources,Frameworks}
-	cp ../../Resources/qt.conf "$asebaapps/Contents/Resources/"
+	cp $WORKSPACE/source/packager/Resources/qt.conf "$asebaapps/Contents/Resources/"
 done
 
 #copy resources into bundle folders
