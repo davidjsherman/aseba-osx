@@ -1,8 +1,6 @@
 #!/bin/bash
-your_aseba_path='$WORKSPACE/build/aseba'
 your_qt_path='/usr/local/Trolltech/Qt-4.8.7'
 your_qwt_path='/usr/local/qwt-6.1.2'
-your_dashel_path='$WORKSPACE/build/dashel'
 
 
 ################################################
@@ -24,18 +22,18 @@ do
 done
 
 #copy resources into bundle folders
-cp $your_aseba_path/targets/playground/unifr.playground .
-cp $your_aseba_path/menu/osx/asebachallenge.icns Aseba\ Challenge.app/Contents/Resources
+cp $WORKSPACE/build/aseba/targets/playground/unifr.playground .
+cp $WORKSPACE/build/aseba/menu/osx/asebachallenge.icns Aseba\ Challenge.app/Contents/Resources
 cp $WORKSPACE/source/packager/Resources/Info.plist.challenge Aseba\ Challenge.app/Contents/Info.plist
-cp $your_aseba_path/menu/osx/thymioupgrader.icns Thymio\ Firmware\ Upgrader.app/Contents/Resources
+cp $WORKSPACE/build/aseba/menu/osx/thymioupgrader.icns Thymio\ Firmware\ Upgrader.app/Contents/Resources
 cp $WORKSPACE/source/packager/Resources/Info.plist.flasher Thymio\ Firmware\ Upgrader.app/Contents/Info.plist
-cp $your_aseba_path/menu/osx/asebastudio.icns Aseba\ Studio.app/Contents/Resources
+cp $WORKSPACE/build/aseba/menu/osx/asebastudio.icns Aseba\ Studio.app/Contents/Resources
 cp $WORKSPACE/source/packager/Resources/Info.plist.studio Aseba\ Studio.app/Contents/Info.plist
-cp $your_aseba_path/menu/osx/asebaplayground.icns Aseba\ Playground.app/Contents/Resources
+cp $WORKSPACE/build/aseba/menu/osx/asebaplayground.icns Aseba\ Playground.app/Contents/Resources
 cp $WORKSPACE/source/packager/Resources/Info.plist.playground Aseba\ Playground.app/Contents/Info.plist
-cp $your_aseba_path/menu/osx/asebastudiothymio.icns Aseba\ Studio\ for\ Thymio.app/Contents/Resources
+cp $WORKSPACE/build/aseba/menu/osx/asebastudiothymio.icns Aseba\ Studio\ for\ Thymio.app/Contents/Resources
 cp $WORKSPACE/source/packager/Resources/Info.plist.asethym Aseba\ Studio\ for\ Thymio.app/Contents/Info.plist
-cp $your_aseba_path/menu/osx/thymiovpl.icns Thymio\ VPL.app/Contents/Resources
+cp $WORKSPACE/build/aseba/menu/osx/thymiovpl.icns Thymio\ VPL.app/Contents/Resources
 cp $WORKSPACE/source/packager/Resources/Info.plist.vpl Thymio\ VPL.app/Contents/Info.plist
 
 #copy all necessary libraries, plugins etc in the package and make them link to the right places
@@ -70,7 +68,7 @@ install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @ex
 otool -L libqwt.6.0.3.dylib
 
 
-cp $your_dashel_path/libdashel.1.0.8.dylib .
+cp $WORKSPACE/build/dashel/libdashel.1.0.8.dylib .
 install_name_tool -id  @executable_path/../Frameworks/libdashel.1.0.8.dylib libdashel.1.0.8.dylib
 otool -L libdashel.1.0.8.dylib
 
@@ -112,19 +110,19 @@ cd ..
 
 #copy all executables 
 
-cp $your_aseba_path/clients/cmd/asebacmd .
-cp $your_aseba_path/clients/dump/asebadump .
-cp $your_aseba_path/clients/replay/asebaplay .
-cp $your_aseba_path/clients/replay/asebarec .
-cp $your_aseba_path/clients/massloader/asebamassloader .
-cp $your_aseba_path/switches/switch/asebaswitch .
-cp $your_aseba_path/switches/http/asebahttp .
-cp $your_aseba_path/targets/dummy/asebadummynode .
-cp $your_aseba_path/clients/studio/asebastudio .
-cp $your_aseba_path/clients/studio/thymiovpl .
-cp $your_aseba_path/targets/challenge/asebachallenge .
-cp $your_aseba_path/targets/playground/asebaplayground .
-cp $your_aseba_path/clients/thymioupgrader/thymioupgrader .
+cp $WORKSPACE/build/aseba/clients/cmd/asebacmd .
+cp $WORKSPACE/build/aseba/clients/dump/asebadump .
+cp $WORKSPACE/build/aseba/clients/replay/asebaplay .
+cp $WORKSPACE/build/aseba/clients/replay/asebarec .
+cp $WORKSPACE/build/aseba/clients/massloader/asebamassloader .
+cp $WORKSPACE/build/aseba/switches/switch/asebaswitch .
+cp $WORKSPACE/build/aseba/switches/http/asebahttp .
+cp $WORKSPACE/build/aseba/targets/dummy/asebadummynode .
+cp $WORKSPACE/build/aseba/clients/studio/asebastudio .
+cp $WORKSPACE/build/aseba/clients/studio/thymiovpl .
+cp $WORKSPACE/build/aseba/targets/challenge/asebachallenge .
+cp $WORKSPACE/build/aseba/targets/playground/asebaplayground .
+cp $WORKSPACE/build/aseba/clients/thymioupgrader/thymioupgrader .
 
 
 #make them link to the correct libraries
@@ -139,7 +137,7 @@ do
 	install_name_tool -change $your_qt_path/lib/QtOpenGL.framework/Versions/4/QtOpenGL @executable_path/../Frameworks/QtOpenGL.framework/Versions/4/QtOpenGL $asebaexec
 	install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg $asebaexec
 	install_name_tool -change $your_qwt_path/lib/libqwt.6.0.3.dylib @executable_path/../Frameworks/libqwt.6.0.3.dylib $asebaexec
-	install_name_tool -change $your_dashel_path/libdashel.1.dylib @executable_path/../Frameworks/libdashel.1.0.8.dylib $asebaexec
+	install_name_tool -change $WORKSPACE/build/dashel/libdashel.1.dylib @executable_path/../Frameworks/libdashel.1.0.8.dylib $asebaexec
     otool -L $asebaexec
 done
 
@@ -183,7 +181,7 @@ done
 #take care of executables that are not in an app bundle = those that will be used rather in command line and do not need a nice icon
 for asebaexec in "asebaswitch" "asebarec" "asebacmd" "asebadump" "asebaplay" "asebadummynode" "asebahttp" "asebamassloader"
 do
-	install_name_tool -change $your_dashel_path/libdashel.1.dylib @executable_path/../libraries/libdashel.1.0.8.dylib $asebaexec
+	install_name_tool -change $WORKSPACE/build/dashel/libdashel.1.dylib @executable_path/../libraries/libdashel.1.0.8.dylib $asebaexec
 	install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../libraries/QtCore.framework/Versions/4/QtCore $asebaexec
 	install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../libraries/QtXml.framework/Versions/4/QtXml $asebaexec
 	otool -L $asebaexec
