@@ -1,0 +1,206 @@
+#!/bin/bash
+your_aseba_path='/Users/riedo/Prog/aseba/aseba'
+your_qt_path='/usr/local/Trolltech/Qt-4.8.5'
+your_qwt_path='/Users/riedo/Prog/qwt/qwt-6.0'
+your_dashel_path='/Users/riedo/Prog/dashel'
+
+
+################################################
+#create directory with correct architecture
+
+rm -rf dmg_contents
+rm pack.temp.dmg
+
+mkdir dmg_contents
+mkdir dmg_contents/Aseba
+cd dmg_contents/Aseba
+mkdir libraries
+mkdir bin
+
+for asebaapps in "Aseba Playground.app" "Aseba Challenge.app" "Aseba Studio.app" "Thymio Firmware Upgrader.app" "Aseba Studio for Thymio.app" "Thymio VPL.app"
+do
+	mkdir -p "$asebaapps/Contents/"{MacOS,Plugins/{imageformats,sqldrivers,iconengines},Resources,Frameworks}
+	cp ../../Package_resources/qt.conf "$asebaapps/Contents/Resources/"
+done
+
+#copy resources into bundle folders
+cp $your_aseba_path/targets/playground/unifr.playground .
+cp $your_aseba_path/menu/osx/asebachallenge.icns Aseba\ Challenge.app/Contents/Resources
+cp ../../Package_resources/Info.plist.challenge Aseba\ Challenge.app/Contents/Info.plist
+cp $your_aseba_path/menu/osx/thymioupgrader.icns Thymio\ Firmware\ Upgrader.app/Contents/Resources
+cp ../../Package_resources/Info.plist.flasher Thymio\ Firmware\ Upgrader.app/Contents/Info.plist
+cp $your_aseba_path/menu/osx/asebastudio.icns Aseba\ Studio.app/Contents/Resources
+cp ../../Package_resources/Info.plist.studio Aseba\ Studio.app/Contents/Info.plist
+cp $your_aseba_path/menu/osx/asebaplayground.icns Aseba\ Playground.app/Contents/Resources
+cp ../../Package_resources/Info.plist.playground Aseba\ Playground.app/Contents/Info.plist
+cp $your_aseba_path/menu/osx/asebastudiothymio.icns Aseba\ Studio\ for\ Thymio.app/Contents/Resources
+cp ../../Package_resources/Info.plist.asethym Aseba\ Studio\ for\ Thymio.app/Contents/Info.plist
+cp $your_aseba_path/menu/osx/thymiovpl.icns Thymio\ VPL.app/Contents/Resources
+cp ../../Package_resources/Info.plist.vpl Thymio\ VPL.app/Contents/Info.plist
+
+#copy all necessary libraries, plugins etc in the package and make them link to the right places
+cd libraries
+
+for qtlib in "QtGui" "QtCore" "QtOpenGL" "QtXml" "QtNetwork" "QtHelp" "QtSql" "QtSvg"
+do
+	cp -R $your_qt_path/lib/$qtlib.framework .
+	rm $qtlib.framework/Versions/4/*_debug
+	rm $qtlib.framework/Versions/Current/*_debug
+	rm $qtlib.framework/*_debug
+	rm $qtlib.framework/*_debug.prl
+
+	install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4/QtSql $qtlib.framework/Versions/4/$qtlib
+	install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $qtlib.framework/Versions/4/$qtlib
+	install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $qtlib.framework/Versions/4/$qtlib 
+	install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml $qtlib.framework/Versions/4/$qtlib 
+	install_name_tool -change $your_qt_path/lib/QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork $qtlib.framework/Versions/4/$qtlib 
+	install_name_tool -change $your_qt_path/lib/QtOpenGL.framework/Versions/4/QtOpenGL @executable_path/../Frameworks/QtOpenGL.framework/Versions/4/QtOpenGL $qtlib.framework/Versions/4/$qtlib 
+	install_name_tool -change $your_qt_path/lib/libz.1.2.3.dylib @executable_path/../Frameworks/libz.1.2.3.dylib $qtlib.framework/Versions/4/$qtlib
+	install_name_tool -change $your_qt_path/lib/libQtCLucene.4.dylib @executable_path/../Frameworks/libQtCLucene.4.8.5.dylib $qtlib.framework/Versions/4/$qtlib
+	install_name_tool -id  @executable_path/../Frameworks/$qtlib.framework/Versions/4/$qtlib $qtlib.framework/Versions/4/$qtlib
+	#otool -L $qtlib.framework/Versions/4/$qtlib 
+done
+
+
+cp $your_qwt_path/lib/libqwt.6.0.3.dylib .
+install_name_tool -id  @executable_path/../Frameworks/libqwt.6.0.3.dylib libqwt.6.0.3.dylib
+install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui libqwt.6.0.3.dylib
+install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libqwt.6.0.3.dylib
+install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg libqwt.6.0.3.dylib
+#otool -L libqwt.6.0.3.dylib
+
+
+cp $your_dashel_path/libdashel.1.0.8.dylib .
+install_name_tool -id  @executable_path/../Frameworks/libdashel.1.0.8.dylib libdashel.1.0.8.dylib
+#otool -L libdashel.1.0.8.dylib
+
+
+cp $your_qt_path/lib/libQtCLucene.4.8.5.dylib .
+install_name_tool -id @executable_path/../Frameworks/libQtCLucene.4.8.5.dylib libQtCLucene.4.8.5.dylib
+install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libQtCLucene.4.8.5.dylib
+#otool -L libQtCLucene.4.8.5.dylib
+
+cp $your_qt_path/plugins/sqldrivers/libqsqlite.dylib .
+install_name_tool -id @executable_path/../Plugins/sqldrivers/libraries/libqsqlite.dylib libqsqlite.dylib 
+install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libqsqlite.dylib
+install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4/QtSql libqsqlite.dylib
+#otool -L libqsqlite.dylib
+
+for formatplugin in "libqgif" "libqico" "libqjpeg" "libqmng" "libqsvg" "libqtga" "libqtiff"
+do
+	cp $your_qt_path/plugins/imageformats/$formatplugin.dylib .
+	install_name_tool -id @executable_path/../Plugins/imageformats/$formatplugin.dylib $formatplugin.dylib 
+	install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $formatplugin.dylib
+	install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $formatplugin.dylib
+	install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4/QtSql $formatplugin.dylib
+	install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml $formatplugin.dylib
+	install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg $formatplugin.dylib
+	#otool -L $formatplugin.dylib
+done
+
+
+cp $your_qt_path/plugins/iconengines/libqsvgicon.dylib .
+install_name_tool -id @executable_path/../Plugins/iconengines/libqsvgicon.dylib libqsvgicon.dylib 
+install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libqsvgicon.dylib
+install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui libqsvgicon.dylib
+install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml libqsvgicon.dylib
+install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg libqsvgicon.dylib
+#otool -L libqsvgicon.dylib
+
+cd ..
+
+
+#copy all executables 
+
+cp $your_aseba_path/clients/cmd/asebacmd .
+cp $your_aseba_path/clients/dump/asebadump .
+cp $your_aseba_path/clients/replay/asebaplay .
+cp $your_aseba_path/clients/replay/asebarec .
+cp $your_aseba_path/clients/massloader/asebamassloader .
+cp $your_aseba_path/switches/switch/asebaswitch .
+cp $your_aseba_path/switches/http/asebahttp .
+cp $your_aseba_path/targets/dummy/asebadummynode .
+cp $your_aseba_path/clients/studio/asebastudio .
+cp $your_aseba_path/clients/studio/thymiovpl .
+cp $your_aseba_path/targets/challenge/asebachallenge .
+cp $your_aseba_path/targets/playground/asebaplayground .
+cp $your_aseba_path/clients/thymioupgrader/thymioupgrader .
+
+
+#make them link to the correct libraries
+for asebaexec in "asebachallenge" "asebastudio" "asebaplayground" "thymioupgrader" "thymiovpl" 
+do
+	install_name_tool -change $your_qt_path/lib/QtHelp.framework/Versions/4/QtHelp @executable_path/../Frameworks/QtHelp.framework/Versions/4/QtHelp $asebaexec
+	install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4/QtSql $asebaexec
+	install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $asebaexec
+	install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $asebaexec 
+	install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml $asebaexec 
+	install_name_tool -change $your_qt_path/lib/QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork $asebaexec 
+	install_name_tool -change $your_qt_path/lib/QtOpenGL.framework/Versions/4/QtOpenGL @executable_path/../Frameworks/QtOpenGL.framework/Versions/4/QtOpenGL $asebaexec
+	install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg $asebaexec
+	install_name_tool -change $your_qwt_path/lib/libqwt.6.0.3.dylib @executable_path/../Frameworks/libqwt.6.0.3.dylib $asebaexec
+	install_name_tool -change $your_dashel_path/libdashel.1.dylib @executable_path/../Frameworks/libdashel.1.0.8.dylib $asebaexec
+    #otool -L $asebaexec
+done
+
+
+mv asebastudio Aseba\ Studio.app/Contents/MacOS/
+mv asebachallenge Aseba\ Challenge.app/Contents/MacOS/
+mv asebaplayground Aseba\ Playground.app/Contents/MacOS/
+mv thymioupgrader Thymio\ Firmware\ Upgrader.app/Contents/MacOS/
+cp ../../asethym Aseba\ Studio\ for\ Thymio.app/contents/MacOS/
+mv thymiovpl Thymio\ VPL.app/Contents/MacOS/
+cp ../../launchthymiovpl Thymio\ VPL.app/contents/MacOS/
+
+mkdir Simulations
+#create symlinks to the libraries
+for asebaapps in "Aseba Playground.app" "Aseba Challenge.app" "Aseba Studio.app" "Thymio Firmware Upgrader.app" "Aseba Studio for Thymio.app" "Thymio VPL.app"
+do
+	cd "$asebaapps/Contents/Frameworks/"
+	for qtframework in "QtGui" "QtCore" "QtOpenGL" "QtXml" "QtNetwork" "QtHelp" "QtSql" "QtSvg"
+	do
+		ln -s ../../../libraries/$qtframework.framework
+	done
+
+	ln -s ../../../libraries/libqwt.6.0.3.dylib
+	ln -s ../../../libraries/libdashel.1.0.8.dylib
+	ln -s ../../../libraries/libQtCLucene.4.8.5.dylib
+
+	cd ../Plugins/imageformats
+	for qtplugin in "libqgif.dylib" "libqico.dylib" "libqjpeg.dylib" "libqmng.dylib" "libqsvg.dylib" "libqtga.dylib" "libqtiff.dylib"
+	do
+		ln -s ../../../../libraries/$qtplugin .
+	done
+
+	cd ../iconengines
+	ln -s ../../../../libraries/libqsvgicon.dylib .
+
+	cd ../sqldrivers
+	ln -s ../../../../libraries/libqsqlite.dylib .
+	cd ../../../.. 
+done
+
+#take care of executables that are not in an app bundle = those that will be used rather in command line and do not need a nice icon
+for asebaexec in "asebaswitch" "asebarec" "asebacmd" "asebadump" "asebaplay" "asebadummynode" "asebahttp" "asebamassloader"
+do
+	install_name_tool -change $your_dashel_path/libdashel.1.dylib @executable_path/../libraries/libdashel.1.0.8.dylib $asebaexec
+	install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../libraries/QtCore.framework/Versions/4/QtCore $asebaexec
+	install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../libraries/QtXml.framework/Versions/4/QtXml $asebaexec
+	otool -L $asebaexec
+done
+
+
+
+mv asebacmd bin/
+mv asebadump bin/
+mv asebaplay bin/
+mv asebarec bin/
+mv asebaswitch bin/
+mv asebadummynode bin/
+mv asebahttp bin/
+mv asebamassloader bin/
+
+cd ../..
+
+hdiutil create -srcfolder "dmg_contents" -volname "Aseba" -fs HFS+ \
+      -fsargs "-c c=64,a=16,e=16" -format UDRW -size $200000k pack.temp.dmg
