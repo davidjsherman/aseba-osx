@@ -22,18 +22,18 @@ do
 done
 
 #copy resources into bundle folders
-cp $WORKSPACE/build/aseba/targets/playground/unifr.playground .
-cp $WORKSPACE/build/aseba/menu/osx/asebachallenge.icns Aseba\ Challenge.app/Contents/Resources
+cp $WORKSPACE/source/aseba/targets/playground/unifr.playground .
+cp $WORKSPACE/source/aseba/menu/osx/asebachallenge.icns Aseba\ Challenge.app/Contents/Resources
 cp $WORKSPACE/source/packager/Resources/Info.plist.challenge Aseba\ Challenge.app/Contents/Info.plist
-cp $WORKSPACE/build/aseba/menu/osx/thymioupgrader.icns Thymio\ Firmware\ Upgrader.app/Contents/Resources
+cp $WORKSPACE/source/aseba/menu/osx/thymioupgrader.icns Thymio\ Firmware\ Upgrader.app/Contents/Resources
 cp $WORKSPACE/source/packager/Resources/Info.plist.flasher Thymio\ Firmware\ Upgrader.app/Contents/Info.plist
-cp $WORKSPACE/build/aseba/menu/osx/asebastudio.icns Aseba\ Studio.app/Contents/Resources
+cp $WORKSPACE/source/aseba/menu/osx/asebastudio.icns Aseba\ Studio.app/Contents/Resources
 cp $WORKSPACE/source/packager/Resources/Info.plist.studio Aseba\ Studio.app/Contents/Info.plist
-cp $WORKSPACE/build/aseba/menu/osx/asebaplayground.icns Aseba\ Playground.app/Contents/Resources
+cp $WORKSPACE/source/aseba/menu/osx/asebaplayground.icns Aseba\ Playground.app/Contents/Resources
 cp $WORKSPACE/source/packager/Resources/Info.plist.playground Aseba\ Playground.app/Contents/Info.plist
-cp $WORKSPACE/build/aseba/menu/osx/asebastudiothymio.icns Aseba\ Studio\ for\ Thymio.app/Contents/Resources
+cp $WORKSPACE/source/aseba/menu/osx/asebastudiothymio.icns Aseba\ Studio\ for\ Thymio.app/Contents/Resources
 cp $WORKSPACE/source/packager/Resources/Info.plist.asethym Aseba\ Studio\ for\ Thymio.app/Contents/Info.plist
-cp $WORKSPACE/build/aseba/menu/osx/thymiovpl.icns Thymio\ VPL.app/Contents/Resources
+cp $WORKSPACE/source/aseba/menu/osx/thymiovpl.icns Thymio\ VPL.app/Contents/Resources
 cp $WORKSPACE/source/packager/Resources/Info.plist.vpl Thymio\ VPL.app/Contents/Info.plist
 
 #copy all necessary libraries, plugins etc in the package and make them link to the right places
@@ -54,29 +54,29 @@ do
 	install_name_tool -change $your_qt_path/lib/QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork $qtlib.framework/Versions/4/$qtlib 
 	install_name_tool -change $your_qt_path/lib/QtOpenGL.framework/Versions/4/QtOpenGL @executable_path/../Frameworks/QtOpenGL.framework/Versions/4/QtOpenGL $qtlib.framework/Versions/4/$qtlib 
 	install_name_tool -change $your_qt_path/lib/libz.1.2.3.dylib @executable_path/../Frameworks/libz.1.2.3.dylib $qtlib.framework/Versions/4/$qtlib
-	install_name_tool -change $your_qt_path/lib/libQtCLucene.4.dylib @executable_path/../Frameworks/libQtCLucene.4.8.5.dylib $qtlib.framework/Versions/4/$qtlib
+	install_name_tool -change $your_qt_path/lib/libQtCLucene.4.dylib @executable_path/../Frameworks/libQtCLucene.4.8.7.dylib $qtlib.framework/Versions/4/$qtlib
 	install_name_tool -id  @executable_path/../Frameworks/$qtlib.framework/Versions/4/$qtlib $qtlib.framework/Versions/4/$qtlib
 	otool -L $qtlib.framework/Versions/4/$qtlib 
 done
 
 
-cp $your_qwt_path/lib/libqwt.6.0.3.dylib .
-install_name_tool -id  @executable_path/../Frameworks/libqwt.6.0.3.dylib libqwt.6.0.3.dylib
-install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui libqwt.6.0.3.dylib
-install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libqwt.6.0.3.dylib
-install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg libqwt.6.0.3.dylib
-otool -L libqwt.6.0.3.dylib
+cp $your_qwt_path/lib/libqwt.6.1.2.dylib .
+install_name_tool -id  @executable_path/../Frameworks/libqwt.6.1.2.dylib libqwt.6.1.2.dylib
+install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui libqwt.6.1.2.dylib
+install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libqwt.6.1.2.dylib
+install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg libqwt.6.1.2.dylib
+otool -L libqwt.6.1.2.dylib
 
 
-cp $WORKSPACE/build/dashel/libdashel.1.0.8.dylib .
-install_name_tool -id  @executable_path/../Frameworks/libdashel.1.0.8.dylib libdashel.1.0.8.dylib
-otool -L libdashel.1.0.8.dylib
+cp $WORKSPACE/build/dashel/libdashel.1.1.0.dylib .
+install_name_tool -id  @executable_path/../Frameworks/libdashel.1.1.0.dylib libdashel.1.1.0.dylib
+otool -L libdashel.1.1.0.dylib
 
 
-cp $your_qt_path/lib/libQtCLucene.4.8.5.dylib .
-install_name_tool -id @executable_path/../Frameworks/libQtCLucene.4.8.5.dylib libQtCLucene.4.8.5.dylib
-install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libQtCLucene.4.8.5.dylib
-otool -L libQtCLucene.4.8.5.dylib
+cp $your_qt_path/lib/libQtCLucene.4.8.7.dylib .
+install_name_tool -id @executable_path/../Frameworks/libQtCLucene.4.8.7.dylib libQtCLucene.4.8.7.dylib
+install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libQtCLucene.4.8.7.dylib
+otool -L libQtCLucene.4.8.7.dylib
 
 cp $your_qt_path/plugins/sqldrivers/libqsqlite.dylib .
 install_name_tool -id @executable_path/../Plugins/sqldrivers/libraries/libqsqlite.dylib libqsqlite.dylib 
@@ -136,8 +136,8 @@ do
 	install_name_tool -change $your_qt_path/lib/QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork $asebaexec 
 	install_name_tool -change $your_qt_path/lib/QtOpenGL.framework/Versions/4/QtOpenGL @executable_path/../Frameworks/QtOpenGL.framework/Versions/4/QtOpenGL $asebaexec
 	install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg $asebaexec
-	install_name_tool -change $your_qwt_path/lib/libqwt.6.0.3.dylib @executable_path/../Frameworks/libqwt.6.0.3.dylib $asebaexec
-	install_name_tool -change $WORKSPACE/build/dashel/libdashel.1.dylib @executable_path/../Frameworks/libdashel.1.0.8.dylib $asebaexec
+	install_name_tool -change $your_qwt_path/lib/libqwt.6.1.2.dylib @executable_path/../Frameworks/libqwt.6.1.2.dylib $asebaexec
+	install_name_tool -change $WORKSPACE/build/dashel/libdashel.1.dylib @executable_path/../Frameworks/libdashel.1.1.0.dylib $asebaexec
     otool -L $asebaexec
 done
 
@@ -160,9 +160,9 @@ do
 		ln -s ../../../libraries/$qtframework.framework
 	done
 
-	ln -s ../../../libraries/libqwt.6.0.3.dylib
-	ln -s ../../../libraries/libdashel.1.0.8.dylib
-	ln -s ../../../libraries/libQtCLucene.4.8.5.dylib
+	ln -s ../../../libraries/libqwt.6.1.2.dylib
+	ln -s ../../../libraries/libdashel.1.1.0.dylib
+	ln -s ../../../libraries/libQtCLucene.4.8.7.dylib
 
 	cd ../Plugins/imageformats
 	for qtplugin in "libqgif.dylib" "libqico.dylib" "libqjpeg.dylib" "libqmng.dylib" "libqsvg.dylib" "libqtga.dylib" "libqtiff.dylib"
@@ -181,7 +181,7 @@ done
 #take care of executables that are not in an app bundle = those that will be used rather in command line and do not need a nice icon
 for asebaexec in "asebaswitch" "asebarec" "asebacmd" "asebadump" "asebaplay" "asebadummynode" "asebahttp" "asebamassloader"
 do
-	install_name_tool -change $WORKSPACE/build/dashel/libdashel.1.dylib @executable_path/../libraries/libdashel.1.0.8.dylib $asebaexec
+	install_name_tool -change $WORKSPACE/build/dashel/libdashel.1.dylib @executable_path/../libraries/libdashel.1.1.0.dylib $asebaexec
 	install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../libraries/QtCore.framework/Versions/4/QtCore $asebaexec
 	install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../libraries/QtXml.framework/Versions/4/QtXml $asebaexec
 	otool -L $asebaexec
