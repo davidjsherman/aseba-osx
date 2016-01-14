@@ -1,0 +1,2 @@
+#!/bin/bash
+exec "$(dirname "$0")/../../../Aseba Studio.app/Contents/MacOS/asebastudio" ser:name=Thymio
