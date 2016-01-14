@@ -1,8 +1,8 @@
 #!/bin/bash
-your_aseba_path='/Users/administrator/jenkins/workspace/aseba.osx/build/aseba/'
+your_aseba_path='$WORKSPACE/build/aseba/'
 your_qt_path='/usr/local/Trolltech/Qt-4.8.7'
 your_qwt_path='/usr/local/qwt-6.1.2'
-your_dashel_path='/Users/administrator/jenkins/workspace/aseba.osx/build/dashel'
+your_dashel_path='$WORKSPACE/build/dashel'
 
 
 ################################################
@@ -26,17 +26,17 @@ done
 #copy resources into bundle folders
 cp $your_aseba_path/targets/playground/unifr.playground .
 cp $your_aseba_path/menu/osx/asebachallenge.icns Aseba\ Challenge.app/Contents/Resources
-cp ../../Resources/Info.plist.challenge Aseba\ Challenge.app/Contents/Info.plist
+cp $WORKSPACE/source/packager/Resources/Info.plist.challenge Aseba\ Challenge.app/Contents/Info.plist
 cp $your_aseba_path/menu/osx/thymioupgrader.icns Thymio\ Firmware\ Upgrader.app/Contents/Resources
-cp ../../Resources/Info.plist.flasher Thymio\ Firmware\ Upgrader.app/Contents/Info.plist
+cp $WORKSPACE/source/packager/Resources/Info.plist.flasher Thymio\ Firmware\ Upgrader.app/Contents/Info.plist
 cp $your_aseba_path/menu/osx/asebastudio.icns Aseba\ Studio.app/Contents/Resources
-cp ../../Resources/Info.plist.studio Aseba\ Studio.app/Contents/Info.plist
+cp $WORKSPACE/source/packager/Resources/Info.plist.studio Aseba\ Studio.app/Contents/Info.plist
 cp $your_aseba_path/menu/osx/asebaplayground.icns Aseba\ Playground.app/Contents/Resources
-cp ../../Resources/Info.plist.playground Aseba\ Playground.app/Contents/Info.plist
+cp $WORKSPACE/source/packager/Resources/Info.plist.playground Aseba\ Playground.app/Contents/Info.plist
 cp $your_aseba_path/menu/osx/asebastudiothymio.icns Aseba\ Studio\ for\ Thymio.app/Contents/Resources
-cp ../../Resources/Info.plist.asethym Aseba\ Studio\ for\ Thymio.app/Contents/Info.plist
+cp $WORKSPACE/source/packager/Resources/Info.plist.asethym Aseba\ Studio\ for\ Thymio.app/Contents/Info.plist
 cp $your_aseba_path/menu/osx/thymiovpl.icns Thymio\ VPL.app/Contents/Resources
-cp ../../Resources/Info.plist.vpl Thymio\ VPL.app/Contents/Info.plist
+cp $WORKSPACE/source/packager/Resources/Info.plist.vpl Thymio\ VPL.app/Contents/Info.plist
 
 #copy all necessary libraries, plugins etc in the package and make them link to the right places
 cd libraries
@@ -148,9 +148,9 @@ mv asebastudio Aseba\ Studio.app/Contents/MacOS/
 mv asebachallenge Aseba\ Challenge.app/Contents/MacOS/
 mv asebaplayground Aseba\ Playground.app/Contents/MacOS/
 mv thymioupgrader Thymio\ Firmware\ Upgrader.app/Contents/MacOS/
-cp ../../Resources/asethym Aseba\ Studio\ for\ Thymio.app/contents/MacOS/
+cp $WORKSPACE/source/packager/Resources/asethym Aseba\ Studio\ for\ Thymio.app/contents/MacOS/
 mv thymiovpl Thymio\ VPL.app/Contents/MacOS/
-cp ../../Resources/launchthymiovpl Thymio\ VPL.app/contents/MacOS/
+cp $WORKSPACE/source/packager/Resources/launchthymiovpl Thymio\ VPL.app/contents/MacOS/
 
 mkdir Simulations
 #create symlinks to the libraries
