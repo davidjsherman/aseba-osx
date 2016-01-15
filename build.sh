@@ -35,7 +35,7 @@ cmake\
  -D "ENKI_INCLUDE_DIR=$WORKSPACE/source/enki"\
  -D "ENKI_LIBRARY=$WORKSPACE/build/enki/enki/libenki.a"\
  -D "ENKI_VIEWER_LIBRARY=$WORKSPACE/build/enki/viewer/libenkiviewer.a"\
- -D "QWT_INCLUDE_DIR=/usr/local/qwt-6.1.2/lib/Headers"\
+ -D "QWT_INCLUDE_DIR=/usr/local/qwt-6.1.2/lib/qwt.framework/Headers"\
  -D "QWT_LIBRARIES=/usr/local/qwt-6.1.2/lib/qwt.framework/"\
  "$WORKSPACE/source/aseba"
 make
