@@ -202,11 +202,11 @@ mv asebamassloader bin/
 cd ../..
 
 hdiutil create -srcfolder "dmg_contents" -volname "Aseba" -fs HFS+ \
-      -fsargs "-c c=64,a=16,e=16" -format UDRW -size $200000k pack.temp.dmg
+      -fsargs "-c c=64,a=16,e=16" -format UDRW -size $200000k aseba.dmg
       
 echo '
    tell application "Finder"
-     tell disk "'Aseba'"
+     tell disk "'aseba.dmg'"
            open
            set current view of container window to icon view
            set toolbar visible of container window to false
