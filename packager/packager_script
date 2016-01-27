@@ -47,7 +47,7 @@ cp $WORKSPACE/source/packager/Resources/background.png .background/
 #copy all necessary libraries, plugins etc in the package and make them link to the right places
 cd libraries
 
-for qtlib in "QtGui" "QtCore" "QtOpenGL" "QtXml" "QtNetwork" "QtHelp" "QtSql" "QtSvg"
+for qtlib in "QtGui" "QtCore" "QtOpenGL" "QtXml" "QtNetwork" "QtHelp" "QtSql" "QtSvg" "QtWebKit"
 do
 	cp -R $your_qt_path/lib/$qtlib.framework .
 	rm $qtlib.framework/Versions/4/*_debug
@@ -68,12 +68,12 @@ do
 done
 
 
-cp $your_qwt_path/lib/libqwt.6.1.2.dylib .
-install_name_tool -id  @executable_path/../Frameworks/libqwt.6.1.2.dylib libqwt.6.1.2.dylib
-install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui libqwt.6.1.2.dylib
-install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libqwt.6.1.2.dylib
-install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg libqwt.6.1.2.dylib
-otool -L libqwt.6.1.2.dylib
+cp $your_qwt_path/lib/qwt.framework .
+install_name_tool -id  @executable_path/../Frameworks/qwt.framework/Versions/6/qwt qwt.framework/Versions/6/qwt
+install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui qwt.framework/Versions/6/qwt
+install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore qwt.framework/Versions/6/qwt
+install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg qwt.framework/Versions/6/qwt
+otool -L qwt.framework/Versions/6/qwt
 
 
 cp $WORKSPACE/build/dashel/libdashel.1.1.0.dylib .
@@ -144,7 +144,7 @@ do
 	install_name_tool -change $your_qt_path/lib/QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork $asebaexec 
 	install_name_tool -change $your_qt_path/lib/QtOpenGL.framework/Versions/4/QtOpenGL @executable_path/../Frameworks/QtOpenGL.framework/Versions/4/QtOpenGL $asebaexec
 	install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg $asebaexec
-	install_name_tool -change $your_qwt_path/lib/libqwt.6.1.2.dylib @executable_path/../Frameworks/libqwt.6.1.2.dylib $asebaexec
+	install_name_tool -change $your_qwt_path/lib/qwt.framework/Versions/6/qwt @executable_path/../Frameworks/qwt.framework/Versions/6/qwt $asebaexec
 	install_name_tool -change $WORKSPACE/build/dashel/libdashel.1.dylib @executable_path/../Frameworks/libdashel.1.1.0.dylib $asebaexec
     otool -L $asebaexec
 done
@@ -168,7 +168,7 @@ do
 		ln -s ../../../libraries/$qtframework.framework
 	done
 
-	ln -s ../../../libraries/libqwt.6.1.2.dylib
+	ln -s ../../../libraries/qwt.framework/Versions/6/qwt
 	ln -s ../../../libraries/libdashel.1.1.0.dylib
 	ln -s ../../../libraries/libQtCLucene.4.8.7.dylib
 
