@@ -6,11 +6,17 @@ your_qwt_path='/usr/local/qwt-6.1.2'
 ################################################
 #create directory with correct architecture
 
+cd $WORKSPACE/build/packager
+
 rm -rf dmg_contents
-rm pack.temp.dmg
+rm aseba.dmg
 
 mkdir dmg_contents
 mkdir dmg_contents/Aseba
+mkdir dmg_contents/.background
+cp $WORKSPACE/packager/Resources/background.png dmg_contents/.background/
+cp $WORKSPACE/packager/Resources/Applications dmg_contents/
+
 cd dmg_contents/Aseba
 mkdir libraries
 mkdir bin
@@ -36,6 +42,7 @@ cp $WORKSPACE/source/aseba/menu/osx/asebastudiothymio.icns Aseba\ Studio\ for\ T
 cp $WORKSPACE/source/packager/Resources/Info.plist.asethym Aseba\ Studio\ for\ Thymio.app/Contents/Info.plist
 cp $WORKSPACE/source/aseba/menu/osx/thymiovpl.icns Thymio\ VPL.app/Contents/Resources
 cp $WORKSPACE/source/packager/Resources/Info.plist.vpl Thymio\ VPL.app/Contents/Info.plist
+cp $WORKSPACE/source/packager/Resources/background.png .background/
 
 #copy all necessary libraries, plugins etc in the package and make them link to the right places
 cd libraries
@@ -201,27 +208,4 @@ mv asebamassloader bin/
 
 cd ../..
 
-hdiutil create -srcfolder "dmg_contents" -volname "Aseba" -fs HFS+ \
-      -fsargs "-c c=64,a=16,e=16" -format UDRW -size $200000k aseba.dmg
-      
-echo '
-   tell application "Finder"
-     tell disk "'aseba.dmg'"
-           open
-           set current view of container window to icon view
-           set toolbar visible of container window to false
-           set statusbar visible of container window to false
-           set the bounds of container window to {400, 100, 885, 430}
-           set theViewOptions to the icon view options of container window
-           set arrangement of theViewOptions to not arranged
-           set icon size of theViewOptions to 72
-           set background picture of theViewOptions to file ".background:'background.png'"
-           make new alias file at container window to POSIX file "/Applications" with properties {name:"Applications"}
-           set position of item "'Aseba'" of container window to {100, 100}
-           set position of item "Applications" of container window to {375, 100}
-           update without registering applications
-           delay 5
-           close
-     end tell
-   end tell
-' | osascript
+
