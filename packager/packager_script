@@ -68,7 +68,7 @@ do
 done
 
 
-cp $your_qwt_path/lib/qwt.framework .
+cp  -R $your_qwt_path/lib/qwt.framework .
 install_name_tool -id  @executable_path/../Frameworks/qwt.framework/Versions/6/qwt qwt.framework/Versions/6/qwt
 install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui qwt.framework/Versions/6/qwt
 install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore qwt.framework/Versions/6/qwt
