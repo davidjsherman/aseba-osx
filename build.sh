@@ -40,6 +40,10 @@ cmake\
  "$WORKSPACE/source/aseba"
 make
 
+mkdir -p "$WORKSPACE/build/packager"
+cd "$WORKSPACE/build/packager"
+"$WORKSPACE/source/packager/packager_script"
+
 cd "$WORKSPACE"
 env
 touch fanny.pkg
