@@ -22,7 +22,7 @@ mkdir libraries
 mkdir bin
 mkdir .background
 
-for asebaapps in "Aseba Playground.app" "Aseba Challenge.app" "Aseba Studio.app" "Thymio Firmware Upgrader.app" "Aseba Studio for Thymio.app" "Thymio VPL.app"
+for asebaapps in "Aseba Playground.app" "Aseba Challenge.app" "Aseba Studio.app" "Thymio Firmware Upgrader.app" "Aseba Studio for Thymio.app" "Thymio VPL.app" "Wireless Thymio Network Configurator.app"
 do
 	mkdir -p "$asebaapps/Contents/"{MacOS,Plugins/{imageformats,sqldrivers,iconengines},Resources,Frameworks}
 	cp $WORKSPACE/source/packager/Resources/qt.conf "$asebaapps/Contents/Resources/"
@@ -43,6 +43,8 @@ cp $WORKSPACE/source/packager/Resources/Info.plist.asethym Aseba\ Studio\ for\ T
 cp $WORKSPACE/source/aseba/menu/osx/thymiovpl.icns Thymio\ VPL.app/Contents/Resources
 cp $WORKSPACE/source/packager/Resources/Info.plist.vpl Thymio\ VPL.app/Contents/Info.plist
 cp $WORKSPACE/source/packager/Resources/background.png .background/
+cp $WORKSPACE/source/aseba/menu/osx/thymiownetconfig.icns Wireless\ Thymio\ Network\ Configurator.app/Contents/Resources
+cp $WORKSPACE/source/packager/Resources/Info.plist.netconfig Wireless\ Thymio\ Network\ Configurator.app/Contents/Info.plist
 
 #copy all necessary libraries, plugins etc in the package and make them link to the right places
 cd libraries
@@ -132,10 +134,10 @@ cp $WORKSPACE/build/aseba/clients/studio/thymiovpl .
 cp $WORKSPACE/build/aseba/targets/challenge/asebachallenge .
 cp $WORKSPACE/build/aseba/targets/playground/asebaplayground .
 cp $WORKSPACE/build/aseba/clients/thymioupgrader/thymioupgrader .
-
+cp $WORKSPACE/build/aseba/clients/thymiownetconfig/thymiownetconfig .
 
 #make them link to the correct libraries
-for asebaexec in "asebachallenge" "asebastudio" "asebaplayground" "thymioupgrader" "thymiovpl" 
+for asebaexec in "asebachallenge" "asebastudio" "asebaplayground" "thymioupgrader" "thymiovpl" "thymiownetconfig"
 do
 	install_name_tool -change $your_qt_path/lib/QtHelp.framework/Versions/4/QtHelp @executable_path/../Frameworks/QtHelp.framework/Versions/4/QtHelp $asebaexec
 	install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4/QtSql $asebaexec
@@ -156,13 +158,14 @@ mv asebastudio Aseba\ Studio.app/Contents/MacOS/
 mv asebachallenge Aseba\ Challenge.app/Contents/MacOS/
 mv asebaplayground Aseba\ Playground.app/Contents/MacOS/
 mv thymioupgrader Thymio\ Firmware\ Upgrader.app/Contents/MacOS/
+mv thymiownetconfig Wireless\ Thymio\ Network\ Configurator.app/Contents/MacOS/ 
 cp $WORKSPACE/source/packager/Resources/asethym Aseba\ Studio\ for\ Thymio.app/contents/MacOS/
 mv thymiovpl Thymio\ VPL.app/Contents/MacOS/
 cp $WORKSPACE/source/packager/Resources/launchthymiovpl Thymio\ VPL.app/contents/MacOS/
 
 mkdir Simulations
 #create symlinks to the libraries
-for asebaapps in "Aseba Playground.app" "Aseba Challenge.app" "Aseba Studio.app" "Thymio Firmware Upgrader.app" "Aseba Studio for Thymio.app" "Thymio VPL.app"
+for asebaapps in "Aseba Playground.app" "Aseba Challenge.app" "Aseba Studio.app" "Thymio Firmware Upgrader.app" "Aseba Studio for Thymio.app" "Thymio VPL.app" "Wireless Thymio Network Configurator.app"
 do
 	cd "$asebaapps/Contents/Frameworks/"
 	for qtframework in "QtGui" "QtCore" "QtOpenGL" "QtXml" "QtNetwork" "QtHelp" "QtSql" "QtSvg" "QtWebKit"
