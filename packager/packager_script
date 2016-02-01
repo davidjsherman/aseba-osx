@@ -8,19 +8,35 @@ your_qwt_path='/usr/local/qwt-6.1.2'
 
 cd $WORKSPACE/build/packager
 
+#first, remove previous package
 rm -rf dmg_contents
-rm aseba.dmg
+rm Aseba.dmg
 
+#create directory with the contents of the dmg: Aseba folder (which will be placed in the /Applications folder of the user), alias to applications, background picture, .DS_store file for dmg settings and appearance
 mkdir dmg_contents
 mkdir dmg_contents/Aseba
 mkdir dmg_contents/.background
 cp $WORKSPACE/packager/Resources/background.png dmg_contents/.background/
 cp $WORKSPACE/packager/Resources/Applications dmg_contents/
+cp $WORKSPACE/packager/Resources/DS_Store dmg_contents/.DS_Store #not very convincing for the moment
+
+#create adequate folders in the Aseba folder
+#standard MacOS application bundles are folders with .app name, allowing to have icons libraries etc packaged with them
+#structure is the following
+# X.app
+# - Contents
+#	Info.plist (MacOS file specifying some settings e.g. compatibility version etc)
+# 	- MacOS (here we place the exectable)
+#	- Frameworks (here we place the frameworks and dynamic libraries)
+#	- Resources (here we place icon files, qt.conf which tells the qt libraries where to find plugins...)
+#	- Plugins (here we place plugins)
+#
+# to avoid repeating libraries in every app bundle, we place only symlinks in the frameworks folders and place all libraries in a separate library folder.
+# command line executables are simply placed in a bin folder
 
 cd dmg_contents/Aseba
 mkdir libraries
 mkdir bin
-mkdir .background
 
 for asebaapps in "Aseba Playground.app" "Aseba Challenge.app" "Aseba Studio.app" "Thymio Firmware Upgrader.app" "Aseba Studio for Thymio.app" "Thymio VPL.app" "Wireless Thymio Network Configurator.app"
 do
@@ -42,11 +58,12 @@ cp $WORKSPACE/source/aseba/menu/osx/asebastudiothymio.icns Aseba\ Studio\ for\ T
 cp $WORKSPACE/source/packager/Resources/Info.plist.asethym Aseba\ Studio\ for\ Thymio.app/Contents/Info.plist
 cp $WORKSPACE/source/aseba/menu/osx/thymiovpl.icns Thymio\ VPL.app/Contents/Resources
 cp $WORKSPACE/source/packager/Resources/Info.plist.vpl Thymio\ VPL.app/Contents/Info.plist
-cp $WORKSPACE/source/packager/Resources/background.png .background/
 cp $WORKSPACE/source/aseba/menu/osx/thymiownetconfig.icns Wireless\ Thymio\ Network\ Configurator.app/Contents/Resources
 cp $WORKSPACE/source/packager/Resources/Info.plist.netconfig Wireless\ Thymio\ Network\ Configurator.app/Contents/Info.plist
+cp $WORKSPACE/source/packager/Resources/background.png .background/
 
-#copy all necessary libraries, plugins etc in the package and make them link to the right places
+#copy all necessary libraries, plugins etc in the package and make them link to the right places (relative paths whithin the app bundle)
+#otool -L will show where an executable of library links to, install_name_tool -change and -id can change the links and id
 cd libraries
 
 for qtlib in "QtGui" "QtCore" "QtOpenGL" "QtXml" "QtNetwork" "QtHelp" "QtSql" "QtSvg" "QtWebKit"
@@ -153,18 +170,20 @@ do
     otool -L $asebaexec
 done
 
-
+#now that all is correctly linked, place executables into app bundles
 mv asebastudio Aseba\ Studio.app/Contents/MacOS/
 mv asebachallenge Aseba\ Challenge.app/Contents/MacOS/
 mv asebaplayground Aseba\ Playground.app/Contents/MacOS/
 mv thymioupgrader Thymio\ Firmware\ Upgrader.app/Contents/MacOS/
 mv thymiownetconfig Wireless\ Thymio\ Network\ Configurator.app/Contents/MacOS/ 
-cp $WORKSPACE/source/packager/Resources/asethym Aseba\ Studio\ for\ Thymio.app/contents/MacOS/
+cp $WORKSPACE/source/packager/Resources/asethym Aseba\ Studio\ for\ Thymio.app/contents/MacOS/ #simple executable bash script starting Studio with Thymio II as target
 mv thymiovpl Thymio\ VPL.app/Contents/MacOS/
-cp $WORKSPACE/source/packager/Resources/launchthymiovpl Thymio\ VPL.app/contents/MacOS/
+cp $WORKSPACE/source/packager/Resources/launchthymiovpl Thymio\ VPL.app/contents/MacOS/ #simple executable bash script starting VPL with Thymio II as target
 
-mkdir Simulations
-#create symlinks to the libraries
+#unfinished, the goal is to have Challenge and Playground in a Simulations subdirectory. this will require to change the symlinks in the concerned app bundles...
+mkdir Simulations 
+
+#create symlinks to the libraries from inside the app bundles
 for asebaapps in "Aseba Playground.app" "Aseba Challenge.app" "Aseba Studio.app" "Thymio Firmware Upgrader.app" "Aseba Studio for Thymio.app" "Thymio VPL.app" "Wireless Thymio Network Configurator.app"
 do
 	cd "$asebaapps/Contents/Frameworks/"
@@ -191,7 +210,8 @@ do
 	cd ../../../.. 
 done
 
-#take care of executables that are not in an app bundle = those that will be used rather in command line and do not need a nice icon
+#change links of executables that are not in an app bundle = those that will be used rather in command line and do not need a nice icon
+# FIXME: what is up with asebamassloader? command line or nice app bundle with GUI?
 for asebaexec in "asebaswitch" "asebarec" "asebacmd" "asebadump" "asebaplay" "asebadummynode" "asebahttp" "asebamassloader"
 do
 	install_name_tool -change $WORKSPACE/build/dashel/libdashel.1.dylib @executable_path/../libraries/libdashel.1.1.0.dylib $asebaexec
@@ -206,7 +226,7 @@ do
 done
 
 
-
+#place executables into bin/
 mv asebacmd bin/
 mv asebadump bin/
 mv asebaplay bin/
@@ -216,6 +236,19 @@ mv asebadummynode bin/
 mv asebahttp bin/
 mv asebamassloader bin/
 
+# time to create a dmg
 cd ../..
 
-
+#create temporary dmg with contents of dmg_contents folder
+hdiutil create -srcfolder dmg_contents -volname "Aseba" -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -size $200000k temp.dmg
+#mount it
+hdiutil attach temp.dmg
+#change permissions
+chmod -Rf go-w /Volumes/Aseba
+sync
+sync
+#unmount
+hdiutil detach /Volumes/Aseba
+#make it into compressed dmg
+hdiutil convert temp.dmg  -format UDZO -imagekey zlib-level=9 -o Aseba.dmg
+rm temp.dmg
