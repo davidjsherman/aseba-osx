@@ -46,4 +46,4 @@ cd "$WORKSPACE/build/packager"
 
 cd "$WORKSPACE"
 env
-touch fanny.pkg
+
