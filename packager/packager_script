@@ -250,5 +250,5 @@ sync
 #unmount
 hdiutil detach /Volumes/Aseba
 #make it into compressed dmg
-hdiutil convert temp.dmg  -format UDZO -imagekey zlib-level=9 -o Aseba.dmg
+hdiutil convert temp.dmg  -format UDZO -imagekey zlib-level=9 -o Aseba-$BUILD_ID-git-$SVN_REVISION.dmg
 rm temp.dmg
