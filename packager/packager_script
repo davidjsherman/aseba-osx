@@ -172,21 +172,21 @@ done
 
 #now that all is correctly linked, place executables into app bundles
 mv asebastudio Aseba\ Studio.app/Contents/MacOS/
-mv asebachallenge Aseba\ Challenge.app/Contents/MacOS/
-mv asebaplayground Aseba\ Playground.app/Contents/MacOS/
+#mv asebachallenge Aseba\ Challenge.app/Contents/MacOS/
+#mv asebaplayground Aseba\ Playground.app/Contents/MacOS/
 mv thymioupgrader Thymio\ Firmware\ Upgrader.app/Contents/MacOS/
 mv thymiownetconfig Wireless\ Thymio\ Network\ Configurator.app/Contents/MacOS/ 
 cp $WORKSPACE/source/packager/Resources/asethym Aseba\ Studio\ for\ Thymio.app/contents/MacOS/ #simple executable bash script starting Studio with Thymio II as target
 mv thymiovpl Thymio\ VPL.app/Contents/MacOS/
 cp $WORKSPACE/source/packager/Resources/launchthymiovpl Thymio\ VPL.app/contents/MacOS/ #simple executable bash script starting VPL with Thymio II as target
 
-#unfinished, the goal is to have Challenge and Playground in a Simulations subdirectory. this will require to change the symlinks in the concerned app bundles...
+#to be tested, the goal is to have Challenge and Playground in a Simulations subdirectory. this will require to change the symlinks in the concerned app bundles...
 mkdir Simulations
 mv asebachallenge Simulations/Aseba\ Challenge.app/Contents/MacOS/
 mv asebaplayground Simulations/Aseba\ Playground.app/Contents/MacOS/
 
 #create symlinks to the libraries from inside the app bundles
-for asebaapps in "Aseba Playground.app" "Aseba Challenge.app" "Aseba Studio.app" "Thymio Firmware Upgrader.app" "Aseba Studio for Thymio.app" "Thymio VPL.app" "Wireless Thymio Network Configurator.app"
+for asebaapps in "Aseba Studio.app" "Thymio Firmware Upgrader.app" "Aseba Studio for Thymio.app" "Thymio VPL.app" "Wireless Thymio Network Configurator.app"
 do
 	cd "$asebaapps/Contents/Frameworks/"
 	for qtframework in "QtGui" "QtCore" "QtOpenGL" "QtXml" "QtNetwork" "QtHelp" "QtSql" "QtSvg" "QtWebKit"
@@ -210,6 +210,34 @@ do
 	cd ../sqldrivers
 	ln -s ../../../../libraries/libqsqlite.dylib .
 	cd ../../../.. 
+done
+
+cd Simulations
+#create symlinks to the libraries from inside the app bundles
+for asebaapps in "Aseba Playground.app" "Aseba Challenge.app" 
+do
+	cd "$asebaapps/Contents/Frameworks/"
+	for qtframework in "QtGui" "QtCore" "QtOpenGL" "QtXml" "QtNetwork" "QtHelp" "QtSql" "QtSvg" "QtWebKit"
+	do
+		ln -s ../../../../libraries/$qtframework.framework
+	done
+
+	ln -s ../../../../libraries/qwt.framework
+	ln -s ../../../../libraries/libdashel.1.1.0.dylib
+	ln -s ../../../../libraries/libQtCLucene.4.8.7.dylib
+
+	cd ../Plugins/imageformats
+	for qtplugin in "libqgif.dylib" "libqico.dylib" "libqjpeg.dylib" "libqmng.dylib" "libqsvg.dylib" "libqtga.dylib" "libqtiff.dylib"
+	do
+		ln -s ../../../../../libraries/$qtplugin .
+	done
+
+	cd ../iconengines
+	ln -s ../../../../../libraries/libqsvgicon.dylib .
+
+	cd ../sqldrivers
+	ln -s ../../../../../libraries/libqsqlite.dylib .
+	cd ../../../../.. 
 done
 
 #change links of executables that are not in an app bundle = those that will be used rather in command line and do not need a nice icon
