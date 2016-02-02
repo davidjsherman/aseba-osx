@@ -240,7 +240,7 @@ do
 	cd "$asebaapps/Contents/Frameworks/"
 	for qtframework in "QtGui" "QtCore" "QtOpenGL" "QtXml" "QtNetwork" "QtHelp" "QtSql" "QtSvg" "QtWebKit"
 	do
-		ln -s ../../../../../libraries/$qtframework.framework
+		ln -s ../../../../libraries/$qtframework.framework
 	done
 
 	ln -s ../../../../libraries/qwt.framework
