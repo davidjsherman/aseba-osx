@@ -16,9 +16,9 @@ rm *.dmg
 mkdir dmg_contents
 mkdir dmg_contents/Aseba
 mkdir dmg_contents/.background
-cp $WORKSPACE/build/packager/Resources/background.png dmg_contents/.background/
-cp $WORKSPACE/build/packager/Resources/Applications dmg_contents/
-cp $WORKSPACE/build/packager/Resources/DS_Store dmg_contents/.DS_Store #not very convincing for the moment
+cp $WORKSPACE/source/packager/Resources/background.png dmg_contents/.background/
+cp $WORKSPACE/source/packager/Resources/Applications dmg_contents/
+cp $WORKSPACE/source/packager/Resources/DS_Store dmg_contents/.DS_Store #not very convincing for the moment
 
 #create adequate folders in the Aseba folder
 #standard MacOS application bundles are folders with .app name, allowing to have icons libraries etc packaged with them
@@ -134,7 +134,8 @@ install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @ex
 otool -L libqsvgicon.dylib
 
 cd ..
-
+#to be tested, the goal is to have Challenge and Playground in a Simulations subdirectory. this will require to change the symlinks in the concerned app bundles...
+mkdir Simulations
 
 #copy all executables 
 
@@ -149,8 +150,8 @@ cp $WORKSPACE/build/aseba/targets/dummy/asebadummynode .
 cp $WORKSPACE/build/aseba/clients/studio/asebastudio .
 cp $WORKSPACE/build/aseba/clients/studio/thymiovpl .
 cp $WORKSPACE/build/aseba/targets/challenge/asebachallenge .
-cp $WORKSPACE/build/aseba/targets/playground/asebaplayground .
-cp $WORKSPACE/build/aseba/clients/thymioupgrader/thymioupgrader .
+cp $WORKSPACE/build/aseba/targets/playground/asebaplayground Simulations/
+cp $WORKSPACE/build/aseba/clients/thymioupgrader/thymioupgrader Simulations/
 cp $WORKSPACE/build/aseba/clients/thymiownetconfig/thymiownetconfig .
 
 #make them link to the correct libraries
@@ -179,9 +180,6 @@ mv thymiownetconfig Wireless\ Thymio\ Network\ Configurator.app/Contents/MacOS/
 cp $WORKSPACE/source/packager/Resources/asethym Aseba\ Studio\ for\ Thymio.app/contents/MacOS/ #simple executable bash script starting Studio with Thymio II as target
 mv thymiovpl Thymio\ VPL.app/Contents/MacOS/
 cp $WORKSPACE/source/packager/Resources/launchthymiovpl Thymio\ VPL.app/contents/MacOS/ #simple executable bash script starting VPL with Thymio II as target
-
-#to be tested, the goal is to have Challenge and Playground in a Simulations subdirectory. this will require to change the symlinks in the concerned app bundles...
-mkdir Simulations
 
 
 #create symlinks to the libraries from inside the app bundles
@@ -212,8 +210,8 @@ do
 done
 
 cd Simulations
-mv ../asebachallenge Aseba\ Challenge.app/Contents/MacOS/
-mv ../asebaplayground Aseba\ Playground.app/Contents/MacOS/
+mv asebachallenge Aseba\ Challenge.app/Contents/MacOS/
+mv asebaplayground Aseba\ Playground.app/Contents/MacOS/
 #create symlinks to the libraries from inside the app bundles
 for asebaapps in "Aseba Playground.app" "Aseba Challenge.app" 
 do
