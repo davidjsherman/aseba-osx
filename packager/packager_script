@@ -260,6 +260,10 @@ do
 	cd ../sqldrivers
 	ln -s ../../../../../libraries/libqsqlite.dylib .
 	cd ../../../.. 
+	
+	cd "$asebaapps/Contents/MacOS/
+	ln -s ../../../../bin/asebaswitch asebaswitch
+	cd ../../..
 done
 cd ..
 #change links of executables that are not in an app bundle = those that will be used rather in command line and do not need a nice icon
