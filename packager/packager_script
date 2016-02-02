@@ -16,7 +16,7 @@ rm *.dmg
 mkdir dmg_contents
 mkdir dmg_contents/Aseba
 mkdir dmg_contents/.background
-cd dmg_contents && ln -s /Applications Applications
+cd dmg_contents && ln -s /Applications Applications && cd ..
 cp $WORKSPACE/source/packager/Resources/background.png dmg_contents/.background/
 #cp $WORKSPACE/source/packager/Resources/Applications dmg_contents/
 cp $WORKSPACE/source/packager/Resources/DS_Store dmg_contents/.DS_Store #not very convincing for the moment
