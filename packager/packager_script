@@ -39,7 +39,7 @@ mkdir libraries
 mkdir bin
 mkdir Simulations
 
-for asebaapps in "Aseba Playground.app" "Aseba Challenge.app" "Aseba Studio.app" "Thymio Firmware Upgrader.app" "Aseba Studio for Thymio.app" "Thymio VPL.app" "Wireless Thymio Network Configurator.app"
+for asebaapps in "Aseba Studio.app" "Thymio Firmware Upgrader.app" "Aseba Studio for Thymio.app" "Thymio VPL.app" "Wireless Thymio Network Configurator.app"
 do
 	mkdir -p "$asebaapps/Contents/"{MacOS,Plugins/{imageformats,sqldrivers,iconengines},Resources,Frameworks}
 	cp $WORKSPACE/source/packager/Resources/qt.conf "$asebaapps/Contents/Resources/"
@@ -155,9 +155,9 @@ cp $WORKSPACE/build/aseba/switches/http/asebahttp .
 cp $WORKSPACE/build/aseba/targets/dummy/asebadummynode .
 cp $WORKSPACE/build/aseba/clients/studio/asebastudio .
 cp $WORKSPACE/build/aseba/clients/studio/thymiovpl .
-cp $WORKSPACE/build/aseba/targets/challenge/asebachallenge .
+cp $WORKSPACE/build/aseba/targets/challenge/asebachallenge Simulations/
 cp $WORKSPACE/build/aseba/targets/playground/asebaplayground Simulations/
-cp $WORKSPACE/build/aseba/clients/thymioupgrader/thymioupgrader Simulations/
+cp $WORKSPACE/build/aseba/clients/thymioupgrader/thymioupgrader .
 cp $WORKSPACE/build/aseba/clients/thymiownetconfig/thymiownetconfig .
 
 #make them link to the correct libraries
