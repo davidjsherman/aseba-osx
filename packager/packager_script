@@ -261,7 +261,7 @@ do
 	ln -s ../../../../../libraries/libqsqlite.dylib .
 	cd ../../../.. 
 	
-	cd "$asebaapps/Contents/MacOS/
+	cd "$asebaapps/Contents/MacOS/"
 	ln -s ../../../../bin/asebaswitch asebaswitch
 	cd ../../..
 done
