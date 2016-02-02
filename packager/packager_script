@@ -219,17 +219,17 @@ cd Simulations
 #make them link to the correct libraries
 for asebaexec in "asebachallenge" "asebaplayground"
 do
-	install_name_tool -change $your_qt_path/lib/QtHelp.framework/Versions/4/QtHelp @executable_path/../../Frameworks/QtHelp.framework/Versions/4/QtHelp $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../../Frameworks/QtSql.framework/Versions/4/QtSql $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../../Frameworks/QtGui.framework/Versions/4/QtGui $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../../Frameworks/QtCore.framework/Versions/4/QtCore $asebaexec 
-	install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../../Frameworks/QtXml.framework/Versions/4/QtXml $asebaexec 
-	install_name_tool -change $your_qt_path/lib/QtNetwork.framework/Versions/4/QtNetwork @executable_path/../../Frameworks/QtNetwork.framework/Versions/4/QtNetwork $asebaexec 
-	install_name_tool -change $your_qt_path/lib/QtOpenGL.framework/Versions/4/QtOpenGL @executable_path/../../Frameworks/QtOpenGL.framework/Versions/4/QtOpenGL $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../../Frameworks/QtSvg.framework/Versions/4/QtSvg $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtWebKit.framework/Versions/4/QtWebKit @executable_path/../../Frameworks/QtWebKit.framework/Versions/4/QtWebKit $asebaexec
-	install_name_tool -change qwt.framework/Versions/6/qwt @executable_path/../../Frameworks/qwt.framework/Versions/6/qwt $asebaexec
-	install_name_tool -change $WORKSPACE/build/dashel/libdashel.1.dylib @executable_path/../../Frameworks/libdashel.1.1.0.dylib $asebaexec
+	install_name_tool -change $your_qt_path/lib/QtHelp.framework/Versions/4/QtHelp @executable_path/../Frameworks/QtHelp.framework/Versions/4/QtHelp $asebaexec
+	install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4/QtSql $asebaexec
+	install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $asebaexec
+	install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $asebaexec 
+	install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml $asebaexec 
+	install_name_tool -change $your_qt_path/lib/QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork $asebaexec 
+	install_name_tool -change $your_qt_path/lib/QtOpenGL.framework/Versions/4/QtOpenGL @executable_path/../Frameworks/QtOpenGL.framework/Versions/4/QtOpenGL $asebaexec
+	install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg $asebaexec
+	install_name_tool -change $your_qt_path/lib/QtWebKit.framework/Versions/4/QtWebKit @executable_path/../Frameworks/QtWebKit.framework/Versions/4/QtWebKit $asebaexec
+	install_name_tool -change qwt.framework/Versions/6/qwt @executable_path/../Frameworks/qwt.framework/Versions/6/qwt $asebaexec
+	install_name_tool -change $WORKSPACE/build/dashel/libdashel.1.dylib @executable_path/../Frameworks/libdashel.1.1.0.dylib $asebaexec
     otool -L $asebaexec
 done
 mv asebachallenge Aseba\ Challenge.app/Contents/MacOS/
