@@ -162,7 +162,7 @@ cp $WORKSPACE/build/aseba/clients/thymioupgrader/thymioupgrader .
 cp $WORKSPACE/build/aseba/clients/thymiownetconfig/thymiownetconfig .
 
 #make them link to the correct libraries
-for asebaexec in "asebachallenge" "asebastudio" "asebaplayground" "thymioupgrader" "thymiovpl" "thymiownetconfig"
+for asebaexec in "asebastudio" "thymioupgrader" "thymiovpl" "thymiownetconfig"
 do
 	install_name_tool -change $your_qt_path/lib/QtHelp.framework/Versions/4/QtHelp @executable_path/../Frameworks/QtHelp.framework/Versions/4/QtHelp $asebaexec
 	install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4/QtSql $asebaexec
