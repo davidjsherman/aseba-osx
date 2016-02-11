@@ -42,13 +42,13 @@ mkdir Simulations
 
 for asebaapps in "Aseba Studio.app" "Thymio Firmware Upgrader.app" "Aseba Studio for Thymio.app" "Thymio VPL.app" "Wireless Thymio Network Configurator.app"
 do
-	mkdir -p "$asebaapps/Contents/"{MacOS,Plugins/{imageformats,sqldrivers,iconengines},Resources,Frameworks}
+	mkdir -p "$asebaapps/Contents/"{MacOS,Plugins/{imageformats,sqldrivers,iconengines},Resources,Frameworks,translations}
 	cp $WORKSPACE/source/packager/Resources/qt.conf "$asebaapps/Contents/Resources/"
 done
 cd Simulations
 for asebaapps in "Aseba Playground.app" "Aseba Challenge.app"
 do
-	mkdir -p "$asebaapps/Contents/"{MacOS,Plugins/{imageformats,sqldrivers,iconengines},Resources,Frameworks}
+	mkdir -p "$asebaapps/Contents/"{MacOS,Plugins/{imageformats,sqldrivers,iconengines},Resources,Frameworks,translations}
 	cp $WORKSPACE/source/packager/Resources/qt.conf "$asebaapps/Contents/Resources/"
 done
 #copy resources into bundle folders
@@ -74,6 +74,14 @@ cp $WORKSPACE/source/packager/Resources/Info.plist.netconfig Wireless\ Thymio\ N
 #otool -L will show where an executable of library links to, install_name_tool -change and -id can change the links and id
 cd libraries
 
+# first translations
+mkdir -p translations
+for lang in "fr" "de" "es" "ja"
+do
+	cp $your_qt_path/translations/qt_$qm.qm translations/
+done
+
+# then Qt frameworks
 for qtlib in "QtGui" "QtCore" "QtOpenGL" "QtXml" "QtNetwork" "QtHelp" "QtSql" "QtSvg" "QtWebKit"
 do
 	cp -R $your_qt_path/lib/$qtlib.framework .
@@ -94,7 +102,7 @@ do
 	otool -L $qtlib.framework/Versions/4/$qtlib 
 done
 
-
+# Qwt framework
 cp  -R $your_qwt_path/lib/qwt.framework .
 install_name_tool -id  @executable_path/../Frameworks/qwt.framework/Versions/6/qwt qwt.framework/Versions/6/qwt
 install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui qwt.framework/Versions/6/qwt
@@ -103,12 +111,12 @@ install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @ex
 install_name_tool -change $your_qt_path/lib/QtOpenGL.framework/Versions/4/QtOpenGL @executable_path/../Frameworks/QtOpenGL.framework/Versions/4/QtOpenGL qwt.framework/Versions/6/qwt
 otool -L qwt.framework/Versions/6/qwt
 
-
+# Dashel
 cp $WORKSPACE/build/dashel/libdashel.1.1.0.dylib .
 install_name_tool -id  @executable_path/../Frameworks/libdashel.1.1.0.dylib libdashel.1.1.0.dylib
 otool -L libdashel.1.1.0.dylib
 
-
+# Qt plugins
 cp $your_qt_path/lib/libQtCLucene.4.8.7.dylib .
 install_name_tool -id @executable_path/../Frameworks/libQtCLucene.4.8.7.dylib libQtCLucene.4.8.7.dylib
 install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libQtCLucene.4.8.7.dylib
@@ -201,6 +209,12 @@ do
 	ln -s ../../../libraries/qwt.framework
 	ln -s ../../../libraries/libdashel.1.1.0.dylib
 	ln -s ../../../libraries/libQtCLucene.4.8.7.dylib
+	
+	cd ../translations
+	for lang in "fr" "de" "es" "ja"
+	do
+		ln -s ../../../libraries/translations/qt_$qm.qm
+	done
 
 	cd ../Plugins/imageformats
 	for qtplugin in "libqgif.dylib" "libqico.dylib" "libqjpeg.dylib" "libqmng.dylib" "libqsvg.dylib" "libqtga.dylib" "libqtiff.dylib"
@@ -247,6 +261,12 @@ do
 	ln -s ../../../../libraries/qwt.framework
 	ln -s ../../../../libraries/libdashel.1.1.0.dylib
 	ln -s ../../../../libraries/libQtCLucene.4.8.7.dylib
+	
+	cd ../translations
+	for lang in "fr" "de" "es" "ja"
+	do
+		ln -s ../../../../libraries/translations/qt_$qm.qm
+	done
 
 	cd ../Plugins/imageformats
 	for qtplugin in "libqgif.dylib" "libqico.dylib" "libqjpeg.dylib" "libqmng.dylib" "libqsvg.dylib" "libqtga.dylib" "libqtiff.dylib"
