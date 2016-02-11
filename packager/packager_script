@@ -78,7 +78,7 @@ cd libraries
 mkdir -p translations
 for lang in "fr" "de" "es" "ja"
 do
-	cp $your_qt_path/translations/qt_$qm.qm translations/
+	cp $your_qt_path/translations/qt_$lang.qm translations/
 done
 
 # then Qt frameworks
@@ -213,7 +213,7 @@ do
 	cd ../translations
 	for lang in "fr" "de" "es" "ja"
 	do
-		ln -s ../../../libraries/translations/qt_$qm.qm
+		ln -s ../../../libraries/translations/qt_$lang.qm
 	done
 
 	cd ../Plugins/imageformats
@@ -265,7 +265,7 @@ do
 	cd ../translations
 	for lang in "fr" "de" "es" "ja"
 	do
-		ln -s ../../../../libraries/translations/qt_$qm.qm
+		ln -s ../../../../libraries/translations/qt_$lang.qm
 	done
 
 	cd ../Plugins/imageformats
