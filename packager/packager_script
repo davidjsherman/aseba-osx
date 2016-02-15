@@ -80,6 +80,7 @@ for lang in "fr" "de" "es" "ja"
 do
 	cp $your_qt_path/translations/qt_$lang.qm translations/
 done
+cp $WORKSPACE/source/packager/Resources/qt_it.qm translations/
 
 # then Qt frameworks
 for qtlib in "QtGui" "QtCore" "QtOpenGL" "QtXml" "QtNetwork" "QtHelp" "QtSql" "QtSvg" "QtWebKit"
@@ -211,7 +212,7 @@ do
 	ln -s ../../../libraries/libQtCLucene.4.8.7.dylib
 	
 	cd ../translations
-	for lang in "fr" "de" "es" "ja"
+	for lang in "fr" "de" "it" "es" "ja"
 	do
 		ln -s ../../../libraries/translations/qt_$lang.qm
 	done
@@ -263,7 +264,7 @@ do
 	ln -s ../../../../libraries/libQtCLucene.4.8.7.dylib
 	
 	cd ../translations
-	for lang in "fr" "de" "es" "ja"
+	for lang in "fr" "de" "it" "es" "ja"
 	do
 		ln -s ../../../../libraries/translations/qt_$lang.qm
 	done
