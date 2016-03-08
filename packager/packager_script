@@ -340,4 +340,6 @@ sync
 hdiutil detach /Volumes/Aseba
 #make it into compressed dmg
 hdiutil convert temp.dmg  -format UDZO -imagekey zlib-level=9 -o Aseba-$BUILD_ID.dmg
+#sign the dmg
+codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" Aseba-$BUILD_ID.dmg
 rm temp.dmg
