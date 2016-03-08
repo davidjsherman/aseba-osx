@@ -237,7 +237,9 @@ do
 
 	cd ../sqldrivers
 	ln -s ../../../../libraries/libqsqlite.dylib .
-	cd ../../../.. 
+	cd ../../../..
+	
+	codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" "$asebaapps"
 done
 
 cd Simulations
@@ -295,6 +297,8 @@ do
 	cd "$asebaapps/Contents/MacOS/"
 	ln -s ../../../../bin/asebaswitch asebaswitch
 	cd ../../..
+	
+	codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" "$asebaapps"
 done
 cd ..
 #change links of executables that are not in an app bundle = those that will be used rather in command line and do not need a nice icon
