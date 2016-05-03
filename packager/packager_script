@@ -106,7 +106,8 @@ do
 	install_name_tool -id  @executable_path/../Frameworks/$qtlib.framework/Versions/4/$qtlib $qtlib.framework/Versions/4/$qtlib
 	otool -L $qtlib.framework/Versions/4/$qtlib 
 	
-	codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" $qtlib.framework/Versions/4/$qtlib
+	[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
+		codesign --force --verify --verbose --sign "$your_codesign_cert" $qtlib.framework/Versions/4/$qtlib
 done
 
 # Qwt framework
@@ -118,27 +119,31 @@ install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @
 install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg qwt.framework/Versions/6/qwt
 install_name_tool -change $your_qt_path/lib/QtOpenGL.framework/Versions/4/QtOpenGL @executable_path/../Frameworks/QtOpenGL.framework/Versions/4/QtOpenGL qwt.framework/Versions/6/qwt
 otool -L qwt.framework/Versions/6/qwt
-codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" qwt.framework/Versions/6/qwt
+[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
+	codesign --force --verify --verbose --sign "$your_codesign_cert" qwt.framework/Versions/6/qwt
 
 # Dashel
 cp $WORKSPACE/build/dashel/libdashel.1.1.0.dylib .
 install_name_tool -id  @executable_path/../Frameworks/libdashel.1.1.0.dylib libdashel.1.1.0.dylib
 otool -L libdashel.1.1.0.dylib
-codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" libdashel.1.1.0.dylib
+[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
+	codesign --force --verify --verbose --sign "$your_codesign_cert" libdashel.1.1.0.dylib
 
 # Qt plugins
 cp $your_qt_path/lib/libQtCLucene.${QT_VERSION}.dylib .
 install_name_tool -id @executable_path/../Frameworks/libQtCLucene.${QT_VERSION}.dylib libQtCLucene.${QT_VERSION}.dylib
 install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libQtCLucene.${QT_VERSION}.dylib
 otool -L libQtCLucene.${QT_VERSION}.dylib
-codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" libQtCLucene.${QT_VERSION}.dylib
+[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
+	codesign --force --verify --verbose --sign "$your_codesign_cert" libQtCLucene.${QT_VERSION}.dylib
 
 cp $your_qt_path/plugins/sqldrivers/libqsqlite.dylib .
 install_name_tool -id @executable_path/../Plugins/sqldrivers/libraries/libqsqlite.dylib libqsqlite.dylib 
 install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libqsqlite.dylib
 install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4/QtSql libqsqlite.dylib
 otool -L libqsqlite.dylib
-codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" libqsqlite.dylib
+[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
+	codesign --force --verify --verbose --sign "$your_codesign_cert" libqsqlite.dylib
 
 for formatplugin in "libqgif" "libqico" "libqjpeg" "libqmng" "libqsvg" "libqtga" "libqtiff"
 do
@@ -150,7 +155,8 @@ do
 	install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml $formatplugin.dylib
 	install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg $formatplugin.dylib
 	otool -L $formatplugin.dylib
-	codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" $formatplugin.dylib
+	[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
+		codesign --force --verify --verbose --sign "$your_codesign_cert" $formatplugin.dylib
 done
 
 
@@ -161,7 +167,8 @@ install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @ex
 install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml libqsvgicon.dylib
 install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg libqsvgicon.dylib
 otool -L libqsvgicon.dylib
-codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" libqsvgicon.dylib
+[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
+	codesign --force --verify --verbose --sign "$your_codesign_cert" libqsvgicon.dylib
 
 cd ..
 
@@ -199,7 +206,8 @@ do
 	install_name_tool -change qwt.framework/Versions/6/qwt @executable_path/../Frameworks/qwt.framework/Versions/6/qwt $asebaexec
 	install_name_tool -change $WORKSPACE/build/dashel/libdashel.1.dylib @executable_path/../Frameworks/libdashel.1.1.0.dylib $asebaexec
 	otool -L $asebaexec
-	codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" $asebaexec
+	[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
+		codesign --force --verify --verbose --sign "$your_codesign_cert" $asebaexec
 done
 
 
@@ -244,7 +252,8 @@ do
 	ln -s ../../../../libraries/libqsqlite.dylib .
 	cd ../../../..
 	
-	codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" "$asebaapps"
+	[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
+		codesign --force --verify --verbose --sign "$your_codesign_cert" "$asebaapps"
 done
 
 cd Simulations
@@ -263,7 +272,8 @@ do
 	install_name_tool -change qwt.framework/Versions/6/qwt @executable_path/../Frameworks/qwt.framework/Versions/6/qwt $asebaexec
 	install_name_tool -change $WORKSPACE/build/dashel/libdashel.1.dylib @executable_path/../Frameworks/libdashel.1.1.0.dylib $asebaexec
 	otool -L $asebaexec
-	codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" $asebaexec
+	[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
+		codesign --force --verify --verbose --sign "$your_codesign_cert" $asebaexec
 done
 mv asebachallenge Aseba\ Challenge.app/Contents/MacOS/
 mv asebaplayground Aseba\ Playground.app/Contents/MacOS/
@@ -303,7 +313,8 @@ do
 	ln -s ../../../../bin/asebaswitch asebaswitch
 	cd ../../..
 	
-	codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" "$asebaapps"
+	[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
+		codesign --force --verify --verbose --sign "$your_codesign_cert" "$asebaapps"
 done
 cd ..
 #change links of executables that are not in an app bundle = those that will be used rather in command line and do not need a nice icon
@@ -319,7 +330,8 @@ do
 	install_name_tool -change $your_qt_path/lib/QtNetwork.framework/Versions/4/QtNetwork @executable_path/../libraries/QtNetwork.framework/Versions/4/QtNetwork $asebaexec
 
 	otool -L $asebaexec
-	codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" $asebaexec
+	[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
+		codesign --force --verify --verbose --sign "$your_codesign_cert" $asebaexec
 done
 
 
