@@ -1,7 +1,8 @@
 #!/bin/bash
-your_qt_path='/usr/local/Trolltech/Qt-4.8.7'
-your_qwt_path='/usr/local/qwt-6.1.2'
-
+echo QT PATH is ${your_qt_path:='/usr/local/Trolltech/Qt-4.8.7'}
+echo QWT PATH is ${your_qwt_path:='/usr/local/qwt-6.1.2'}
+echo CODESIGN is ${your_codesign_cert:='Developer ID Application: Association Mobsya (P97H86YL8K)'}
+echo BUILD_ID is ${BUILD_ID:=$(date -u +"%Y%m%dT%H%M%SZ")}
 
 ################################################
 #create directory with correct architecture
@@ -10,7 +11,7 @@ cd $WORKSPACE/build/packager
 
 #first, remove previous package
 rm -rf dmg_contents
-rm *.dmg
+rm -f *.dmg
 
 #create directory with the contents of the dmg: Aseba folder (which will be placed in the /Applications folder of the user), alias to applications, background picture, .DS_store file for dmg settings and appearance
 mkdir dmg_contents
@@ -86,10 +87,10 @@ cp $WORKSPACE/source/packager/Resources/qt_it.qm translations/
 for qtlib in "QtGui" "QtCore" "QtOpenGL" "QtXml" "QtNetwork" "QtHelp" "QtSql" "QtSvg" "QtWebKit"
 do
 	cp -R $your_qt_path/lib/$qtlib.framework .
-	rm $qtlib.framework/Versions/4/*_debug
-	rm $qtlib.framework/Versions/Current/*_debug
-	rm $qtlib.framework/*_debug
-	rm $qtlib.framework/*_debug.prl
+	rm -f $qtlib.framework/Versions/4/*_debug
+	rm -f $qtlib.framework/Versions/Current/*_debug
+	rm -f $qtlib.framework/*_debug
+	rm -f $qtlib.framework/*_debug.prl
 
 	install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4/QtSql $qtlib.framework/Versions/4/$qtlib
 	install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $qtlib.framework/Versions/4/$qtlib
@@ -345,5 +346,6 @@ hdiutil detach /Volumes/Aseba
 #make it into compressed dmg
 hdiutil convert temp.dmg  -format UDZO -imagekey zlib-level=9 -o Aseba-$BUILD_ID.dmg
 #sign the dmg
-codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" Aseba-$BUILD_ID.dmg
-rm temp.dmg
+[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
+	codesign --force --verify --verbose --sign "$your_codesign_cert" Aseba-$BUILD_ID.dmg
+rm -f temp.dmg

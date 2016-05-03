@@ -1,5 +1,8 @@
 #!/bin/sh
+echo QWT PATH is ${your_qwt_path:='/usr/local/qwt-6.1.2'}
 set -eu
+
+[ -d "$WORKSPACE/source" -o -L "$WORKSPACE/source" ] || ln -s . "$WORKSPACE/source"
 
 mkdir -p "$WORKSPACE/build/dashel"
 cd "$WORKSPACE/build/dashel"
@@ -35,8 +38,8 @@ cmake\
  -D "ENKI_INCLUDE_DIR=$WORKSPACE/source/enki"\
  -D "ENKI_LIBRARY=$WORKSPACE/build/enki/enki/libenki.a"\
  -D "ENKI_VIEWER_LIBRARY=$WORKSPACE/build/enki/viewer/libenkiviewer.a"\
- -D "QWT_INCLUDE_DIR=/usr/local/qwt-6.1.2/lib/qwt.framework/Headers"\
- -D "QWT_LIBRARIES=/usr/local/qwt-6.1.2/lib/qwt.framework/"\
+ -D "QWT_INCLUDE_DIR=$your_qwt_path/lib/qwt.framework/Headers"\
+ -D "QWT_LIBRARIES=$your_qwt_path/lib/qwt.framework/"\
  "$WORKSPACE/source/aseba"
 make
 
