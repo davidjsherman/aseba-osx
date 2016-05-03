@@ -4,6 +4,8 @@ echo QWT PATH is ${your_qwt_path:='/usr/local/qwt-6.1.2'}
 echo CODESIGN is ${your_codesign_cert:='Developer ID Application: Association Mobsya (P97H86YL8K)'}
 echo BUILD_ID is ${BUILD_ID:=$(date -u +"%Y%m%dT%H%M%SZ")}
 
+QT_VERSION=${your_qt_path##*-}
+
 ################################################
 #create directory with correct architecture
 
@@ -87,6 +89,7 @@ cp $WORKSPACE/source/packager/Resources/qt_it.qm translations/
 for qtlib in "QtGui" "QtCore" "QtOpenGL" "QtXml" "QtNetwork" "QtHelp" "QtSql" "QtSvg" "QtWebKit"
 do
 	cp -R $your_qt_path/lib/$qtlib.framework .
+	chmod -Rf u+w $qtlib.framework
 	rm -f $qtlib.framework/Versions/4/*_debug
 	rm -f $qtlib.framework/Versions/Current/*_debug
 	rm -f $qtlib.framework/*_debug
@@ -99,7 +102,7 @@ do
 	install_name_tool -change $your_qt_path/lib/QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork $qtlib.framework/Versions/4/$qtlib 
 	install_name_tool -change $your_qt_path/lib/QtOpenGL.framework/Versions/4/QtOpenGL @executable_path/../Frameworks/QtOpenGL.framework/Versions/4/QtOpenGL $qtlib.framework/Versions/4/$qtlib 
 	install_name_tool -change $your_qt_path/lib/libz.1.2.3.dylib @executable_path/../Frameworks/libz.1.2.3.dylib $qtlib.framework/Versions/4/$qtlib
-	install_name_tool -change $your_qt_path/lib/libQtCLucene.4.dylib @executable_path/../Frameworks/libQtCLucene.4.8.7.dylib $qtlib.framework/Versions/4/$qtlib
+	install_name_tool -change $your_qt_path/lib/libQtCLucene.4.dylib @executable_path/../Frameworks/libQtCLucene.${QT_VERSION}.dylib $qtlib.framework/Versions/4/$qtlib
 	install_name_tool -id  @executable_path/../Frameworks/$qtlib.framework/Versions/4/$qtlib $qtlib.framework/Versions/4/$qtlib
 	otool -L $qtlib.framework/Versions/4/$qtlib 
 	
@@ -108,6 +111,7 @@ done
 
 # Qwt framework
 cp  -R $your_qwt_path/lib/qwt.framework .
+chmod -Rf u+w qwt.framework
 install_name_tool -id  @executable_path/../Frameworks/qwt.framework/Versions/6/qwt qwt.framework/Versions/6/qwt
 install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui qwt.framework/Versions/6/qwt
 install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore qwt.framework/Versions/6/qwt
@@ -123,11 +127,11 @@ otool -L libdashel.1.1.0.dylib
 codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" libdashel.1.1.0.dylib
 
 # Qt plugins
-cp $your_qt_path/lib/libQtCLucene.4.8.7.dylib .
-install_name_tool -id @executable_path/../Frameworks/libQtCLucene.4.8.7.dylib libQtCLucene.4.8.7.dylib
-install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libQtCLucene.4.8.7.dylib
-otool -L libQtCLucene.4.8.7.dylib
-codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" libQtCLucene.4.8.7.dylib
+cp $your_qt_path/lib/libQtCLucene.${QT_VERSION}.dylib .
+install_name_tool -id @executable_path/../Frameworks/libQtCLucene.${QT_VERSION}.dylib libQtCLucene.${QT_VERSION}.dylib
+install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libQtCLucene.${QT_VERSION}.dylib
+otool -L libQtCLucene.${QT_VERSION}.dylib
+codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" libQtCLucene.${QT_VERSION}.dylib
 
 cp $your_qt_path/plugins/sqldrivers/libqsqlite.dylib .
 install_name_tool -id @executable_path/../Plugins/sqldrivers/libraries/libqsqlite.dylib libqsqlite.dylib 
@@ -219,7 +223,7 @@ do
 
 	ln -s ../../../libraries/qwt.framework
 	ln -s ../../../libraries/libdashel.1.1.0.dylib
-	ln -s ../../../libraries/libQtCLucene.4.8.7.dylib
+	ln -s ../../../libraries/libQtCLucene.${QT_VERSION}.dylib
 	
 	cd ../translations
 	for lang in "fr" "de" "it" "es" "ja"
@@ -274,7 +278,7 @@ do
 
 	ln -s ../../../../libraries/qwt.framework
 	ln -s ../../../../libraries/libdashel.1.1.0.dylib
-	ln -s ../../../../libraries/libQtCLucene.4.8.7.dylib
+	ln -s ../../../../libraries/libQtCLucene.${QT_VERSION}.dylib
 	
 	cd ../translations
 	for lang in "fr" "de" "it" "es" "ja"
@@ -334,7 +338,7 @@ mv asebamassloader bin/
 cd ../..
 
 #create temporary dmg with contents of dmg_contents folder
-hdiutil create -srcfolder dmg_contents -volname "Aseba" -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -size $200000k temp.dmg
+hdiutil create -srcfolder dmg_contents -volname "Aseba" -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -size 200000k temp.dmg
 #mount it
 hdiutil attach temp.dmg
 #change permissions
