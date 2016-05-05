@@ -41,6 +41,7 @@ cmake\
  -D "ENKI_VIEWER_LIBRARY=$WORKSPACE/build/enki/viewer/libenkiviewer.a"\
  -D "QWT_INCLUDE_DIR=$your_qwt_path/lib/qwt.framework/Headers"\
  -D "QWT_LIBRARIES=$your_qwt_path/lib/qwt.framework/"\
+ -D "CMAKE_CXX_FLAGS:STRING=-std=gnu++11"\
  "$WORKSPACE/source/aseba"
 make
 
