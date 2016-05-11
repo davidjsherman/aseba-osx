@@ -39,6 +39,7 @@ cd dmg_contents/Aseba
 mkdir libraries
 mkdir bin
 mkdir Simulations
+mkdir Simulations/examples
 
 for asebaapps in "Aseba Studio.app" "Thymio Firmware Upgrader.app" "Aseba Studio for Thymio.app" "Thymio VPL.app" "Wireless Thymio Network Configurator.app"
 do
@@ -52,7 +53,7 @@ do
 	cp $WORKSPACE/source/packager/Resources/qt.conf "$asebaapps/Contents/Resources/"
 done
 #copy resources into bundle folders
-cp $WORKSPACE/source/aseba/targets/playground/unifr.playground .
+cp $WORKSPACE/source/aseba/targets/playground/examples/* examples
 cp $WORKSPACE/source/aseba/menu/osx/asebachallenge.icns Aseba\ Challenge.app/Contents/Resources
 cp $WORKSPACE/source/packager/Resources/Info.plist.challenge Aseba\ Challenge.app/Contents/Info.plist
 cp $WORKSPACE/source/aseba/menu/osx/asebaplayground.icns Aseba\ Playground.app/Contents/Resources
