@@ -1,10 +1,15 @@
 #!/bin/bash
-echo QT PATH is ${your_qt_path:='/usr/local/Trolltech/Qt-4.8.7'}
-echo QWT PATH is ${your_qwt_path:='/usr/local/qwt-6.1.2'}
-echo CODESIGN is ${your_codesign_cert:='Developer ID Application: Association Mobsya (P97H86YL8K)'}
-echo BUILD_ID is ${BUILD_ID:=$(date -u +"%Y%m%dT%H%M%SZ")}
+echo QT_LIBRARY_DIR=${QT_LIBRARY_DIR:='/usr/local/Trolltech/Qt-4.8.7/lib'}
+echo QWT_LIBRARIES=${QWT_LIBRARIES:='/usr/local/qwt-6.1.2/lib/qwt.framework'}
+echo CODESIGN_CERT=${CODESIGN_CERT:='Developer ID Application: Association Mobsya (P97H86YL8K)'}
 
-QT_VERSION=${your_qt_path##*-}
+QT_ROOT=${QT_LIBRARY_DIR%/lib}
+QT_VERSION=${QT_ROOT##*/}
+QT_VERSION=${QT_VERSION##*-}
+echo QT_TRANSLATIONS_DIR=${QT_TRANSLATIONS_DIR:=${QT_ROOT}/translations}
+echo QT_PLUGINS_DIR=${QT_PLUGINS_DIR:=${QT_ROOT}/plugins}
+
+echo BUILD_ID=${BUILD_ID:=$(date -u +"%Y%m%dT%H%M%SZ")}
 
 ################################################
 #create directory with correct architecture
@@ -23,6 +28,42 @@ cd dmg_contents && ln -s /Applications Applications && cd ..
 cp $WORKSPACE/source/packager/Resources/background.png dmg_contents/.background/
 #cp $WORKSPACE/source/packager/Resources/Applications dmg_contents/
 cp $WORKSPACE/source/packager/Resources/DS_Store dmg_contents/.DS_Store #not very convincing for the moment
+
+# Find current versions of some libraries
+DASHEL_LIBRARY=${DASHEL_LIBRARY:=$(otool -L $WORKSPACE/build/aseba/clients/studio/asebastudio|cut -d\  -f1|cut -c2-|grep libdashel)}
+export DASHEL_LIBRARY=${DASHEL_LIBRARY##*/}
+LIBZ_LIBRARY=${LIBZ_LIBRARY:=$(ls -d $QT_LIBRARY_DIR/libz.*.dylib /usr/lib/libz.*.dylib|tail -1)}
+export LIBZ_LIBRARY=${LIBZ_LIBRARY##*/}
+QTLUCENE_LIBRARY=${QTLUCENE_LIBRARY:=$(ls -d $QT_LIBRARY_DIR/libQtCLucene.*.dylib|tail -1)}
+export QTLUCENE_LIBRARY=${QTLUCENE_LIBRARY##*/}
+
+# Rename library dependencies in each of the given resources
+# Any renaming that doesn't apply will just be ignored by install_name_tool
+# /usr/local/lib is a failsafe, in case Homebrew's symbolic links were used
+rename_deps_and_sign () {
+    for resource in "$@"
+    do
+	for name in QtCore QtGui QtHelp QtNetwork QtOpenGL QtSql QtSvg QtWebKit QtXml
+	do
+	    install_name_tool -change $QT_LIBRARY_DIR/$name.framework/Versions/4/$name \
+			      @executable_path/../Frameworks/$name.framework/Versions/4/$name \
+			      -change /usr/local/lib/$name.framework/Versions/4/$name \
+			      @executable_path/../Frameworks/$name.framework/Versions/4/$name \
+			      $resource
+	done
+	for name in $QT_LIBRARY_DIR/{$LIBZ_LIBRARY,$QTLUCENE_LIBRARY} $WORKSPACE/build/dashel/$DASHEL_LIBRARY
+	do
+	    install_name_tool -change $name @executable_path/../Frameworks/${name##*/} $resource
+	done
+	for name in {,/usr/local/lib/}qwt.framework/Versions/6/qwt 
+	do
+    	    install_name_tool -change $name @executable_path/../Frameworks/qwt.framework/Versions/6/qwt $resource
+	done
+	otool -L $resource
+	[ "${CODESIGN_CERT:0:25}" = "Developer ID Application:" ] &&
+	    codesign --force --verify --verbose --sign "$CODESIGN_CERT" $resource
+    done
+}
 
 #create adequate folders in the Aseba folder
 #standard MacOS application bundles are folders with .app name, allowing to have icons libraries etc packaged with them
@@ -55,7 +96,7 @@ do
 	cp $WORKSPACE/source/packager/Resources/qt.conf "$asebaapps/Contents/Resources/"
 done
 #copy resources into bundle folders
-cp $WORKSPACE/source/aseba/targets/playground/unifr.playground .
+cp -r $WORKSPACE/source/aseba/targets/playground/examples .
 cp $WORKSPACE/source/aseba/menu/osx/asebachallenge.icns Aseba\ Challenge.app/Contents/Resources
 cp $WORKSPACE/source/packager/Resources/Info.plist.challenge Aseba\ Challenge.app/Contents/Info.plist
 cp $WORKSPACE/source/aseba/menu/osx/asebaplayground.icns Aseba\ Playground.app/Contents/Resources
@@ -81,94 +122,56 @@ cd libraries
 mkdir -p translations
 for lang in "fr" "de" "es" "ja"
 do
-	cp $your_qt_path/translations/qt_$lang.qm translations/
+	rsync -Lar $QT_TRANSLATIONS_DIR/qt_$lang.qm translations/
 done
 cp $WORKSPACE/source/packager/Resources/qt_it.qm translations/
 
 # then Qt frameworks
 for qtlib in "QtGui" "QtCore" "QtOpenGL" "QtXml" "QtNetwork" "QtHelp" "QtSql" "QtSvg" "QtWebKit"
 do
-	cp -R $your_qt_path/lib/$qtlib.framework .
+	rsync -Lar $QT_LIBRARY_DIR/$qtlib.framework .
 	chmod -Rf u+w $qtlib.framework
 	rm -f $qtlib.framework/Versions/4/*_debug
 	rm -f $qtlib.framework/Versions/Current/*_debug
 	rm -f $qtlib.framework/*_debug
 	rm -f $qtlib.framework/*_debug.prl
 
-	install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4/QtSql $qtlib.framework/Versions/4/$qtlib
-	install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $qtlib.framework/Versions/4/$qtlib
-	install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $qtlib.framework/Versions/4/$qtlib 
-	install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml $qtlib.framework/Versions/4/$qtlib 
-	install_name_tool -change $your_qt_path/lib/QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork $qtlib.framework/Versions/4/$qtlib 
-	install_name_tool -change $your_qt_path/lib/QtOpenGL.framework/Versions/4/QtOpenGL @executable_path/../Frameworks/QtOpenGL.framework/Versions/4/QtOpenGL $qtlib.framework/Versions/4/$qtlib 
-	install_name_tool -change $your_qt_path/lib/libz.1.2.3.dylib @executable_path/../Frameworks/libz.1.2.3.dylib $qtlib.framework/Versions/4/$qtlib
-	install_name_tool -change $your_qt_path/lib/libQtCLucene.4.dylib @executable_path/../Frameworks/libQtCLucene.${QT_VERSION}.dylib $qtlib.framework/Versions/4/$qtlib
 	install_name_tool -id  @executable_path/../Frameworks/$qtlib.framework/Versions/4/$qtlib $qtlib.framework/Versions/4/$qtlib
-	otool -L $qtlib.framework/Versions/4/$qtlib 
-	
-	[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
-		codesign --force --verify --verbose --sign "$your_codesign_cert" $qtlib.framework/Versions/4/$qtlib
+	rename_deps_and_sign $qtlib.framework/Versions/4/$qtlib
 done
 
 # Qwt framework
-cp  -R $your_qwt_path/lib/qwt.framework .
+rsync -Lar $QWT_LIBRARIES .
 chmod -Rf u+w qwt.framework
 install_name_tool -id  @executable_path/../Frameworks/qwt.framework/Versions/6/qwt qwt.framework/Versions/6/qwt
-install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui qwt.framework/Versions/6/qwt
-install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore qwt.framework/Versions/6/qwt
-install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg qwt.framework/Versions/6/qwt
-install_name_tool -change $your_qt_path/lib/QtOpenGL.framework/Versions/4/QtOpenGL @executable_path/../Frameworks/QtOpenGL.framework/Versions/4/QtOpenGL qwt.framework/Versions/6/qwt
-otool -L qwt.framework/Versions/6/qwt
-[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
-	codesign --force --verify --verbose --sign "$your_codesign_cert" qwt.framework/Versions/6/qwt
+rename_deps_and_sign qwt.framework/Versions/6/qwt
 
 # Dashel
-cp $WORKSPACE/build/dashel/libdashel.1.1.0.dylib .
-install_name_tool -id  @executable_path/../Frameworks/libdashel.1.1.0.dylib libdashel.1.1.0.dylib
-otool -L libdashel.1.1.0.dylib
-[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
-	codesign --force --verify --verbose --sign "$your_codesign_cert" libdashel.1.1.0.dylib
+rsync -Lar $WORKSPACE/build/dashel/$DASHEL_LIBRARY .
+install_name_tool -id  @executable_path/../Frameworks/$DASHEL_LIBRARY $DASHEL_LIBRARY
+rename_deps_and_sign $DASHEL_LIBRARY
 
 # Qt plugins
-cp $your_qt_path/lib/libQtCLucene.${QT_VERSION}.dylib .
-install_name_tool -id @executable_path/../Frameworks/libQtCLucene.${QT_VERSION}.dylib libQtCLucene.${QT_VERSION}.dylib
-install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libQtCLucene.${QT_VERSION}.dylib
-otool -L libQtCLucene.${QT_VERSION}.dylib
-[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
-	codesign --force --verify --verbose --sign "$your_codesign_cert" libQtCLucene.${QT_VERSION}.dylib
+rsync -Lar $QT_LIBRARY_DIR/$QTLUCENE_LIBRARY .
+chmod -Rf u+w $QTLUCENE_LIBRARY
+install_name_tool -id @executable_path/../Frameworks/$QTLUCENE_LIBRARY $QTLUCENE_LIBRARY
+rename_deps_and_sign $QTLUCENE_LIBRARY
 
-cp $your_qt_path/plugins/sqldrivers/libqsqlite.dylib .
-install_name_tool -id @executable_path/../Plugins/sqldrivers/libraries/libqsqlite.dylib libqsqlite.dylib 
-install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libqsqlite.dylib
-install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4/QtSql libqsqlite.dylib
-otool -L libqsqlite.dylib
-[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
-	codesign --force --verify --verbose --sign "$your_codesign_cert" libqsqlite.dylib
+rsync -Lar $QT_PLUGINS_DIR/sqldrivers/libqsqlite.dylib .
+install_name_tool -id @executable_path/../Plugins/sqldrivers/libraries/libqsqlite.dylib libqsqlite.dylib
+rename_deps_and_sign libqsqlite.dylib
 
 for formatplugin in "libqgif" "libqico" "libqjpeg" "libqmng" "libqsvg" "libqtga" "libqtiff"
 do
-	cp $your_qt_path/plugins/imageformats/$formatplugin.dylib .
+	rsync -Lar $QT_PLUGINS_DIR/imageformats/$formatplugin.dylib .
 	install_name_tool -id @executable_path/../Plugins/imageformats/$formatplugin.dylib $formatplugin.dylib 
-	install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $formatplugin.dylib
-	install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $formatplugin.dylib
-	install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4/QtSql $formatplugin.dylib
-	install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml $formatplugin.dylib
-	install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg $formatplugin.dylib
-	otool -L $formatplugin.dylib
-	[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
-		codesign --force --verify --verbose --sign "$your_codesign_cert" $formatplugin.dylib
+	rename_deps_and_sign $formatplugin.dylib
 done
 
 
-cp $your_qt_path/plugins/iconengines/libqsvgicon.dylib .
+rsync -Lar $QT_PLUGINS_DIR/iconengines/libqsvgicon.dylib .
 install_name_tool -id @executable_path/../Plugins/iconengines/libqsvgicon.dylib libqsvgicon.dylib 
-install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libqsvgicon.dylib
-install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui libqsvgicon.dylib
-install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml libqsvgicon.dylib
-install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg libqsvgicon.dylib
-otool -L libqsvgicon.dylib
-[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
-	codesign --force --verify --verbose --sign "$your_codesign_cert" libqsvgicon.dylib
+rename_deps_and_sign libqsvgicon.dylib
 
 cd ..
 
@@ -192,31 +195,15 @@ cp $WORKSPACE/build/aseba/clients/thymioupgrader/thymioupgrader .
 cp $WORKSPACE/build/aseba/clients/thymiownetconfig/thymiownetconfig .
 
 #make them link to the correct libraries
-for asebaexec in "asebastudio" "thymioupgrader" "thymiovpl" "thymiownetconfig"
-do
-	install_name_tool -change $your_qt_path/lib/QtHelp.framework/Versions/4/QtHelp @executable_path/../Frameworks/QtHelp.framework/Versions/4/QtHelp $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4/QtSql $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $asebaexec 
-	install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml $asebaexec 
-	install_name_tool -change $your_qt_path/lib/QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork $asebaexec 
-	install_name_tool -change $your_qt_path/lib/QtOpenGL.framework/Versions/4/QtOpenGL @executable_path/../Frameworks/QtOpenGL.framework/Versions/4/QtOpenGL $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtWebKit.framework/Versions/4/QtWebKit @executable_path/../Frameworks/QtWebKit.framework/Versions/4/QtWebKit $asebaexec
-	install_name_tool -change qwt.framework/Versions/6/qwt @executable_path/../Frameworks/qwt.framework/Versions/6/qwt $asebaexec
-	install_name_tool -change $WORKSPACE/build/dashel/libdashel.1.dylib @executable_path/../Frameworks/libdashel.1.1.0.dylib $asebaexec
-	otool -L $asebaexec
-	[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
-		codesign --force --verify --verbose --sign "$your_codesign_cert" $asebaexec
-done
+rename_deps_and_sign "asebastudio" "thymioupgrader" "thymiovpl" "thymiownetconfig"
 
 
 #now that all is correctly linked, place executables into app bundles
-mv asebastudio Aseba\ Studio.app/Contents/MacOS/
-mv thymioupgrader Thymio\ Firmware\ Upgrader.app/Contents/MacOS/
-mv thymiownetconfig Wireless\ Thymio\ Network\ Configurator.app/Contents/MacOS/ 
+mv -v asebastudio Aseba\ Studio.app/Contents/MacOS/
+mv -v thymioupgrader Thymio\ Firmware\ Upgrader.app/Contents/MacOS/
+mv -v thymiownetconfig Wireless\ Thymio\ Network\ Configurator.app/Contents/MacOS/ 
 cp $WORKSPACE/source/packager/Resources/asethym Aseba\ Studio\ for\ Thymio.app/contents/MacOS/ #simple executable bash script starting Studio with Thymio II as target
-mv thymiovpl Thymio\ VPL.app/Contents/MacOS/
+mv -v thymiovpl Thymio\ VPL.app/Contents/MacOS/
 cp $WORKSPACE/source/packager/Resources/launchthymiovpl Thymio\ VPL.app/contents/MacOS/ #simple executable bash script starting VPL with Thymio II as target
 
 
@@ -230,8 +217,8 @@ do
 	done
 
 	ln -s ../../../libraries/qwt.framework
-	ln -s ../../../libraries/libdashel.1.1.0.dylib
-	ln -s ../../../libraries/libQtCLucene.${QT_VERSION}.dylib
+	ln -s ../../../libraries/$DASHEL_LIBRARY
+	ln -s ../../../libraries/$QTCLUCENE_LIBRARY
 	
 	cd ../translations
 	for lang in "fr" "de" "it" "es" "ja"
@@ -252,31 +239,15 @@ do
 	ln -s ../../../../libraries/libqsqlite.dylib .
 	cd ../../../..
 	
-	[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
-		codesign --force --verify --verbose --sign "$your_codesign_cert" "$asebaapps"
+	[ "${CODESIGN_CERT:0:25}" = "Developer ID Application:" ] &&
+		codesign --force --verify --verbose --sign "$CODESIGN_CERT" "$asebaapps"
 done
 
 cd Simulations
 #make them link to the correct libraries
-for asebaexec in "asebachallenge" "asebaplayground"
-do
-	install_name_tool -change $your_qt_path/lib/QtHelp.framework/Versions/4/QtHelp @executable_path/../Frameworks/QtHelp.framework/Versions/4/QtHelp $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4/QtSql $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $asebaexec 
-	install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml $asebaexec 
-	install_name_tool -change $your_qt_path/lib/QtNetwork.framework/Versions/4/QtNetwork @executable_path/../Frameworks/QtNetwork.framework/Versions/4/QtNetwork $asebaexec 
-	install_name_tool -change $your_qt_path/lib/QtOpenGL.framework/Versions/4/QtOpenGL @executable_path/../Frameworks/QtOpenGL.framework/Versions/4/QtOpenGL $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtWebKit.framework/Versions/4/QtWebKit @executable_path/../Frameworks/QtWebKit.framework/Versions/4/QtWebKit $asebaexec
-	install_name_tool -change qwt.framework/Versions/6/qwt @executable_path/../Frameworks/qwt.framework/Versions/6/qwt $asebaexec
-	install_name_tool -change $WORKSPACE/build/dashel/libdashel.1.dylib @executable_path/../Frameworks/libdashel.1.1.0.dylib $asebaexec
-	otool -L $asebaexec
-	[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
-		codesign --force --verify --verbose --sign "$your_codesign_cert" $asebaexec
-done
-mv asebachallenge Aseba\ Challenge.app/Contents/MacOS/
-mv asebaplayground Aseba\ Playground.app/Contents/MacOS/
+rename_deps_and_sign "asebachallenge" "asebaplayground"
+mv -v asebachallenge Aseba\ Challenge.app/Contents/MacOS/
+mv -v asebaplayground Aseba\ Playground.app/Contents/MacOS/
 #create symlinks to the libraries from inside the app bundles
 for asebaapps in "Aseba Playground.app" "Aseba Challenge.app" 
 do
@@ -287,8 +258,8 @@ do
 	done
 
 	ln -s ../../../../libraries/qwt.framework
-	ln -s ../../../../libraries/libdashel.1.1.0.dylib
-	ln -s ../../../../libraries/libQtCLucene.${QT_VERSION}.dylib
+	ln -s ../../../../libraries/$DASHEL_LIBRARY
+	ln -s ../../../../libraries/$QTCLUCENE_LIBRARY
 	
 	cd ../translations
 	for lang in "fr" "de" "it" "es" "ja"
@@ -313,43 +284,31 @@ do
 	ln -s ../../../../bin/asebaswitch asebaswitch
 	cd ../../..
 	
-	[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
-		codesign --force --verify --verbose --sign "$your_codesign_cert" "$asebaapps"
+	[ "${CODESIGN_CERT:0:25}" = "Developer ID Application:" ] &&
+		codesign --force --verify --verbose --sign "$CODESIGN_CERT" "$asebaapps"
 done
 cd ..
 #change links of executables that are not in an app bundle = those that will be used rather in command line and do not need a nice icon
 # FIXME: what is up with asebamassloader? command line or nice app bundle with GUI?
-for asebaexec in "asebaswitch" "asebarec" "asebacmd" "asebadump" "asebaplay" "asebadummynode" "asebahttp" "asebahttp2" "asebamassloader"
-do
-	install_name_tool -change $WORKSPACE/build/dashel/libdashel.1.dylib @executable_path/../libraries/libdashel.1.1.0.dylib $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../libraries/QtCore.framework/Versions/4/QtCore $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../libraries/QtXml.framework/Versions/4/QtXml $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../libraries/QtSvg.framework/Versions/4/QtSvg $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtHelp.framework/Versions/4/QtHelp @executable_path/../libraries/QtHelp.framework/Versions/4/QtHelp $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtWebKit.framework/Versions/4/QtWebKit @executable_path/../libraries/QtWebKit.framework/Versions/4/QtWebKit $asebaexec
-	install_name_tool -change $your_qt_path/lib/QtNetwork.framework/Versions/4/QtNetwork @executable_path/../libraries/QtNetwork.framework/Versions/4/QtNetwork $asebaexec
-
-	otool -L $asebaexec
-	[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
-		codesign --force --verify --verbose --sign "$your_codesign_cert" $asebaexec
-done
+rename_deps_and_sign "asebaswitch" "asebarec" "asebacmd" "asebadump" "asebaplay" "asebadummynode" "asebahttp" "asebahttp2" "asebamassloader"
 
 
 #place executables into bin/
-mv asebacmd bin/
-mv asebadump bin/
-mv asebaplay bin/
-mv asebarec bin/
-mv asebaswitch bin/
-mv asebadummynode bin/
-mv asebahttp bin/
-mv asebahttp2 bin/
-mv asebamassloader bin/
+mv -v asebacmd bin/
+mv -v asebadump bin/
+mv -v asebaplay bin/
+mv -v asebarec bin/
+mv -v asebaswitch bin/
+mv -v asebadummynode bin/
+mv -v asebahttp bin/
+mv -v asebahttp2 bin/
+mv -v asebamassloader bin/
 
 # time to create a dmg
 cd ../..
 
 #create temporary dmg with contents of dmg_contents folder
+LANG=en_US
 hdiutil create -srcfolder dmg_contents -volname "Aseba" -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -size 200000k temp.dmg
 #mount it
 hdiutil attach temp.dmg
@@ -362,6 +321,6 @@ hdiutil detach /Volumes/Aseba
 #make it into compressed dmg
 hdiutil convert temp.dmg  -format UDZO -imagekey zlib-level=9 -o Aseba-$BUILD_ID.dmg
 #sign the dmg
-[ "${your_codesign_cert:0:25}" = "Developer ID Application:" ] &&
-	codesign --force --verify --verbose --sign "$your_codesign_cert" Aseba-$BUILD_ID.dmg
+[ "${CODESIGN_CERT:0:25}" = "Developer ID Application:" ] &&
+	codesign --force --verify --verbose --sign "$CODESIGN_CERT" Aseba-$BUILD_ID.dmg
 rm -f temp.dmg

@@ -1,6 +1,6 @@
 #!/bin/sh
-echo QWT PATH is ${your_qwt_path:='/usr/local/qwt-6.1.2'}
-echo MACOSX_SDK is ${MACOSX_SDK:='MacOSX10.11.sdk'}
+echo QWT_LIBRARIES=${QWT_LIBRARIES:='/usr/local/qwt-6.1.2/lib/qwt.framework'}
+echo MACOSX_SDK=${MACOSX_SDK:='MacOSX10.11.sdk'}
 set -eu
 
 [ -d "$WORKSPACE/source" -o -L "$WORKSPACE/source" ] || ln -s . "$WORKSPACE/source"
@@ -39,8 +39,8 @@ cmake\
  -D "ENKI_INCLUDE_DIR=$WORKSPACE/source/enki"\
  -D "ENKI_LIBRARY=$WORKSPACE/build/enki/enki/libenki.a"\
  -D "ENKI_VIEWER_LIBRARY=$WORKSPACE/build/enki/viewer/libenkiviewer.a"\
- -D "QWT_INCLUDE_DIR=$your_qwt_path/lib/qwt.framework/Headers"\
- -D "QWT_LIBRARIES=$your_qwt_path/lib/qwt.framework/"\
+ -D "QWT_INCLUDE_DIR=$QWT_LIBRARIES/Headers"\
+ -D "QWT_LIBRARIES=$QWT_LIBRARIES/"\
  "$WORKSPACE/source/aseba"
 make
 
