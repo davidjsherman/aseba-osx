@@ -309,7 +309,7 @@ cd ../..
 
 #create temporary dmg with contents of dmg_contents folder
 LANG=en_US
-hdiutil create -srcfolder dmg_contents -volname "Aseba" -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -size 200000k temp.dmg
+hdiutil create -srcfolder dmg_contents -volname "Aseba" -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -size 240000k temp.dmg
 #mount it
 hdiutil attach temp.dmg
 #change permissions
