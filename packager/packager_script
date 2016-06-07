@@ -122,14 +122,14 @@ cd libraries
 mkdir -p translations
 for lang in "fr" "de" "es" "ja"
 do
-	rsync -a $QT_TRANSLATIONS_DIR/qt_$lang.qm translations/
+	rsync -a -L $QT_TRANSLATIONS_DIR/qt_$lang.qm translations/
 done
 cp $WORKSPACE/source/packager/Resources/qt_it.qm translations/
 
 # then Qt frameworks
 for qtlib in "QtGui" "QtCore" "QtOpenGL" "QtXml" "QtNetwork" "QtHelp" "QtSql" "QtSvg" "QtWebKit"
 do
-	rsync -a $QT_LIBRARY_DIR/$qtlib.framework .
+	rsync -a -L $QT_LIBRARY_DIR/$qtlib.framework .
 	chmod -Rf u+w $qtlib.framework
 	rm -f $qtlib.framework/Versions/4/*_debug
 	rm -f $qtlib.framework/Versions/Current/*_debug
@@ -141,35 +141,35 @@ do
 done
 
 # Qwt framework
-rsync -a $QWT_LIBRARIES .
+rsync -a -L $QWT_LIBRARIES .
 chmod -Rf u+w qwt.framework
 install_name_tool -id  @executable_path/../Frameworks/qwt.framework/Versions/6/qwt qwt.framework/Versions/6/qwt
 rename_deps_and_sign qwt.framework/Versions/6/qwt
 
 # Dashel
-rsync -a $WORKSPACE/build/dashel/$DASHEL_LIBRARY .
+rsync -a -L $WORKSPACE/build/dashel/$DASHEL_LIBRARY .
 install_name_tool -id  @executable_path/../Frameworks/$DASHEL_LIBRARY $DASHEL_LIBRARY
 rename_deps_and_sign $DASHEL_LIBRARY
 
 # Qt plugins
-rsync -a $QT_LIBRARY_DIR/$QTLUCENE_LIBRARY .
+rsync -a -L $QT_LIBRARY_DIR/$QTLUCENE_LIBRARY .
 chmod -Rf u+w $QTLUCENE_LIBRARY
 install_name_tool -id @executable_path/../Frameworks/$QTLUCENE_LIBRARY $QTLUCENE_LIBRARY
 rename_deps_and_sign $QTLUCENE_LIBRARY
 
-rsync -a $QT_PLUGINS_DIR/sqldrivers/libqsqlite.dylib .
+rsync -a -L $QT_PLUGINS_DIR/sqldrivers/libqsqlite.dylib .
 install_name_tool -id @executable_path/../Plugins/sqldrivers/libraries/libqsqlite.dylib libqsqlite.dylib
 rename_deps_and_sign libqsqlite.dylib
 
 for formatplugin in "libqgif" "libqico" "libqjpeg" "libqmng" "libqsvg" "libqtga" "libqtiff"
 do
-	rsync -a $QT_PLUGINS_DIR/imageformats/$formatplugin.dylib .
+	rsync -a -L $QT_PLUGINS_DIR/imageformats/$formatplugin.dylib .
 	install_name_tool -id @executable_path/../Plugins/imageformats/$formatplugin.dylib $formatplugin.dylib 
 	rename_deps_and_sign $formatplugin.dylib
 done
 
 
-rsync -a $QT_PLUGINS_DIR/iconengines/libqsvgicon.dylib .
+rsync -a -L $QT_PLUGINS_DIR/iconengines/libqsvgicon.dylib .
 install_name_tool -id @executable_path/../Plugins/iconengines/libqsvgicon.dylib libqsvgicon.dylib 
 rename_deps_and_sign libqsvgicon.dylib
 
