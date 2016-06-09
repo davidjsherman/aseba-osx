@@ -1,13 +1,13 @@
 #!/bin/bash
-echo QT_LIBRARY_DIR=${QT_LIBRARY_DIR:='/usr/local/Trolltech/Qt-4.8.7/lib'}
-echo QWT_LIBRARIES=${QWT_LIBRARIES:='/usr/local/qwt-6.1.2/lib/qwt.framework'}
+echo QT_LIBRARY_DIR=${QT_LIBRARY_DIR:='/usr/local/Trolltech/Qt-4.8.7/lib'} "#"$([ -d $QT_LIBRARY_DIR ] || echo " not" ) found
+echo QWT_LIBRARIES=${QWT_LIBRARIES:='/usr/local/qwt-6.1.2/lib/qwt.framework'} "#"$([ -d $QWT_LIBRARIES ] || echo " not" ) found
 echo CODESIGN_CERT=${CODESIGN_CERT:='Developer ID Application: Association Mobsya (P97H86YL8K)'}
 
 QT_ROOT=${QT_LIBRARY_DIR%/lib}
 QT_VERSION=${QT_ROOT##*/}
 QT_VERSION=${QT_VERSION##*-}
-echo QT_TRANSLATIONS_DIR=${QT_TRANSLATIONS_DIR:=${QT_ROOT}/translations}
-echo QT_PLUGINS_DIR=${QT_PLUGINS_DIR:=${QT_ROOT}/plugins}
+echo QT_TRANSLATIONS_DIR=${QT_TRANSLATIONS_DIR:=${QT_ROOT}/translations} "#"$([ -d $QT_TRANSLATIONS_DIR ] || echo " not" ) found
+echo QT_PLUGINS_DIR=${QT_PLUGINS_DIR:=${QT_ROOT}/plugins} "#"$([ -d $QT_PLUGINS_DIR ] || echo " not" ) found
 
 echo BUILD_ID=${BUILD_ID:=$(date -u +"%Y%m%dT%H%M%SZ")}
 
@@ -49,13 +49,15 @@ rename_deps_and_sign () {
 			      @executable_path/../Frameworks/$name.framework/Versions/4/$name \
 			      -change /usr/local/lib/$name.framework/Versions/4/$name \
 			      @executable_path/../Frameworks/$name.framework/Versions/4/$name \
+			      -change /usr/local/opt/qt/lib/$name.framework/Versions/4/$name \
+			      @executable_path/../Frameworks/$name.framework/Versions/4/$name \
 			      $resource
 	done
 	for name in $QT_LIBRARY_DIR/{$LIBZ_LIBRARY,$QTLUCENE_LIBRARY} $WORKSPACE/build/dashel/$DASHEL_LIBRARY
 	do
 	    install_name_tool -change $name @executable_path/../Frameworks/${name##*/} $resource
 	done
-	for name in {,/usr/local/lib/}qwt.framework/Versions/6/qwt 
+	for name in {$QWT_LIBRARIES,/usr/local/{,opt/qwt/}lib/qwt.framework}/Versions/6/qwt 
 	do
     	    install_name_tool -change $name @executable_path/../Frameworks/qwt.framework/Versions/6/qwt $resource
 	done
@@ -304,6 +306,23 @@ mv -v asebahttp bin/
 mv -v asebahttp2 bin/
 mv -v asebamassloader bin/
 
+################################################
+# build submodules
+
+# Scratch2-ThymioII
+which -s platypus &&
+if [ -f "$WORKSPACE/packager/osx/Makefile" ]; then
+    make -C "$WORKSPACE/packager/osx" all \
+	 PORTLIST="$WORKSPACE/build/dashel/portlist" \
+	 ASEBAHTTP="$WORKSPACE/build/aseba/switches/http/asebahttp" \
+	 ASEBASCRATCH="$WORKSPACE/build/aseba/examples/clients/scratch/asebascratch"
+    mkdir -p $WORKSPACE/build/packager/dmg_contents/Aseba/Scratch
+    mv "$WORKSPACE/packager/osx"/*.app $WORKSPACE/build/packager/dmg_contents/Aseba/Scratch
+    rsync -a "$WORKSPACE/packager/osx"/Resources/ $WORKSPACE/build/packager/dmg_contents/Aseba/Scratch/
+    mv $WORKSPACE/build/packager/dmg_contents/Aseba/Scratch/{,.}DS_Store
+fi
+
+################################################
 # time to create a dmg
 cd ../..
 
