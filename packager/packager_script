@@ -1,15 +1,16 @@
 #!/bin/bash
-echo QT_LIBRARY_DIR=${QT_LIBRARY_DIR:='/usr/local/Trolltech/Qt-4.8.7/lib'}
-echo QWT_LIBRARIES=${QWT_LIBRARIES:='/usr/local/qwt-6.1.2/lib/qwt.framework'}
+echo QT_LIBRARY_DIR=${QT_LIBRARY_DIR:='/usr/local/Trolltech/Qt-4.8.7/lib'} "#"$([ -d $QT_LIBRARY_DIR ] || echo " not" ) found
+echo QWT_LIBRARIES=${QWT_LIBRARIES:='/usr/local/qwt-6.1.2/lib/qwt.framework'} "#"$([ -d $QWT_LIBRARIES ] || echo " not" ) found
 echo CODESIGN_CERT=${CODESIGN_CERT:='Developer ID Application: Association Mobsya (P97H86YL8K)'}
 
 QT_ROOT=${QT_LIBRARY_DIR%/lib}
 QT_VERSION=${QT_ROOT##*/}
 QT_VERSION=${QT_VERSION##*-}
-echo QT_TRANSLATIONS_DIR=${QT_TRANSLATIONS_DIR:=${QT_ROOT}/translations}
-echo QT_PLUGINS_DIR=${QT_PLUGINS_DIR:=${QT_ROOT}/plugins}
+echo QT_TRANSLATIONS_DIR=${QT_TRANSLATIONS_DIR:=${QT_ROOT}/translations} "#"$([ -d $QT_TRANSLATIONS_DIR ] || echo " not" ) found
+echo QT_PLUGINS_DIR=${QT_PLUGINS_DIR:=${QT_ROOT}/plugins} "#"$([ -d $QT_PLUGINS_DIR ] || echo " not" ) found
 
 echo BUILD_ID=${BUILD_ID:=$(date -u +"%Y%m%dT%H%M%SZ")}
+echo OUTDMG=${OUTDMG:=aseba-djs-$(cut -d\" -f2 "$WORKSPACE"/build/aseba/version.nsi)-$(date -u +"%Y%m%dT%H%M")-osx.dmg}
 
 ################################################
 #create directory with correct architecture
@@ -32,9 +33,9 @@ cp $WORKSPACE/source/packager/Resources/DS_Store dmg_contents/.DS_Store #not ver
 # Find current versions of some libraries
 DASHEL_LIBRARY=${DASHEL_LIBRARY:=$(otool -L $WORKSPACE/build/aseba/clients/studio/asebastudio|cut -d\  -f1|cut -c2-|grep libdashel)}
 export DASHEL_LIBRARY=${DASHEL_LIBRARY##*/}
-LIBZ_LIBRARY=${LIBZ_LIBRARY:=$(ls -d $QT_LIBRARY_DIR/libz.*.dylib /usr/lib/libz.*.dylib|tail -1)}
+LIBZ_LIBRARY=${LIBZ_LIBRARY:=$(ls -d $QT_LIBRARY_DIR/libz.*.dylib /usr/lib/libz.*.dylib 2>/dev/null|tail -1)}
 export LIBZ_LIBRARY=${LIBZ_LIBRARY##*/}
-QTLUCENE_LIBRARY=${QTLUCENE_LIBRARY:=$(ls -d $QT_LIBRARY_DIR/libQtCLucene.*.dylib|tail -1)}
+QTLUCENE_LIBRARY=${QTLUCENE_LIBRARY:=$(ls -d $QT_LIBRARY_DIR/libQtCLucene.*.dylib 2>/dev/null|tail -1)}
 export QTLUCENE_LIBRARY=${QTLUCENE_LIBRARY##*/}
 
 # Rename library dependencies in each of the given resources
@@ -49,13 +50,15 @@ rename_deps_and_sign () {
 			      @executable_path/../Frameworks/$name.framework/Versions/4/$name \
 			      -change /usr/local/lib/$name.framework/Versions/4/$name \
 			      @executable_path/../Frameworks/$name.framework/Versions/4/$name \
+			      -change /usr/local/opt/qt/lib/$name.framework/Versions/4/$name \
+			      @executable_path/../Frameworks/$name.framework/Versions/4/$name \
 			      $resource
 	done
 	for name in $QT_LIBRARY_DIR/{$LIBZ_LIBRARY,$QTLUCENE_LIBRARY} $WORKSPACE/build/dashel/$DASHEL_LIBRARY
 	do
 	    install_name_tool -change $name @executable_path/../Frameworks/${name##*/} $resource
 	done
-	for name in {,/usr/local/lib/}qwt.framework/Versions/6/qwt 
+	for name in {$QWT_LIBRARIES,/usr/local/{,opt/qwt/}lib/qwt.framework}/Versions/6/qwt 
 	do
     	    install_name_tool -change $name @executable_path/../Frameworks/qwt.framework/Versions/6/qwt $resource
 	done
@@ -304,6 +307,26 @@ mv -v asebahttp bin/
 mv -v asebahttp2 bin/
 mv -v asebamassloader bin/
 
+################################################
+# build submodules
+
+# Scratch2-ThymioII
+which -s platypus &&
+if [ -f "$WORKSPACE"/packager/osx/Makefile ]; then
+    make -C "$WORKSPACE"/packager/osx all \
+	 PORTLIST="$WORKSPACE"/build/dashel/portlist \
+	 ASEBAHTTP="$WORKSPACE"/build/aseba/switches/http/asebahttp \
+	 ASEBASCRATCH="$WORKSPACE"/build/aseba/examples/clients/scratch/asebascratch
+    mkdir -p "$WORKSPACE"/build/packager/dmg_contents/Aseba/Scratch
+    mv "$WORKSPACE/packager/osx"/*.app $WORKSPACE/build/packager/dmg_contents/Aseba/Scratch
+    rsync -a --exclude '.??*' --exclude tests --exclude playground \
+	  "$WORKSPACE"/packager/osx/inirobot/ \
+	  "$WORKSPACE"/build/packager/dmg_contents/Aseba/Scratch
+    rsync -a "$WORKSPACE"/packager/osx/Resources/DS_Store \
+	  "$WORKSPACE"/build/packager/dmg_contents/Aseba/Scratch/.DS_Store
+fi
+
+################################################
 # time to create a dmg
 cd ../..
 
@@ -319,8 +342,8 @@ sync
 #unmount
 hdiutil detach /Volumes/Aseba
 #make it into compressed dmg
-hdiutil convert temp.dmg  -format UDZO -imagekey zlib-level=9 -o Aseba-$BUILD_ID.dmg
+hdiutil convert temp.dmg  -format UDZO -imagekey zlib-level=9 -o "$OUTDMG"
 #sign the dmg
 [ "${CODESIGN_CERT:0:25}" = "Developer ID Application:" ] &&
-	codesign --force --verify --verbose --sign "$CODESIGN_CERT" Aseba-$BUILD_ID.dmg
+	codesign --force --verify --verbose --sign "$CODESIGN_CERT" "$OUTDMG"
 rm -f temp.dmg
