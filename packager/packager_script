@@ -10,6 +10,7 @@ echo QT_TRANSLATIONS_DIR=${QT_TRANSLATIONS_DIR:=${QT_ROOT}/translations} "#"$([ 
 echo QT_PLUGINS_DIR=${QT_PLUGINS_DIR:=${QT_ROOT}/plugins} "#"$([ -d $QT_PLUGINS_DIR ] || echo " not" ) found
 
 echo BUILD_ID=${BUILD_ID:=$(date -u +"%Y%m%dT%H%M%SZ")}
+echo OUTDMG=${OUTDMG:=aseba-djs-$(cut -d\" -f2 "$WORKSPACE"/build/aseba/version.nsi)-$(date -u +"%Y%m%dT%H%M")-osx.dmg}
 
 ################################################
 #create directory with correct architecture
@@ -338,8 +339,8 @@ sync
 #unmount
 hdiutil detach /Volumes/Aseba
 #make it into compressed dmg
-hdiutil convert temp.dmg  -format UDZO -imagekey zlib-level=9 -o Aseba-$BUILD_ID.dmg
+hdiutil convert temp.dmg  -format UDZO -imagekey zlib-level=9 -o "$OUTDMG"
 #sign the dmg
 [ "${CODESIGN_CERT:0:25}" = "Developer ID Application:" ] &&
-	codesign --force --verify --verbose --sign "$CODESIGN_CERT" Aseba-$BUILD_ID.dmg
+	codesign --force --verify --verbose --sign "$CODESIGN_CERT" "$OUTDMG"
 rm -f temp.dmg
