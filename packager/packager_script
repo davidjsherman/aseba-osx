@@ -252,8 +252,8 @@ done
 cd Simulations
 #make them link to the correct libraries
 rename_deps_and_sign "asebachallenge" "asebaplayground"
-squashcopy -v asebachallenge Aseba\ Challenge.app/Contents/MacOS/
-squashcopy -v asebaplayground Aseba\ Playground.app/Contents/MacOS/
+mv -v asebachallenge Aseba\ Challenge.app/Contents/MacOS/
+mv -v asebaplayground Aseba\ Playground.app/Contents/MacOS/
 #create symlinks to the libraries from inside the app bundles
 for asebaapps in "Aseba Playground.app" "Aseba Challenge.app" 
 do
