@@ -10,7 +10,10 @@ echo QT_TRANSLATIONS_DIR=${QT_TRANSLATIONS_DIR:=${QT_ROOT}/translations} "#"$([ 
 echo QT_PLUGINS_DIR=${QT_PLUGINS_DIR:=${QT_ROOT}/plugins} "#"$([ -d $QT_PLUGINS_DIR ] || echo " not" ) found
 
 echo BUILD_ID=${BUILD_ID:=$(date -u +"%Y%m%dT%H%M%SZ")}
-echo OUTDMG=${OUTDMG:=aseba-djs-$(cut -d\" -f2 "$WORKSPACE"/build/aseba/version.nsi)-$(date -u +"%Y%m%dT%H%M")-osx.dmg}
+echo ASEBA_DMG=${ASEBA_DMG:=aseba-djs-$(cut -d\" -f2 "$WORKSPACE"/build/aseba/version.nsi)-$(date -u +"%Y%m%dT%H%M")-osx.dmg}
+echo SCRATCH_DMG=${SCRATCH_DMG:=scratch2thymio2-${ASEBA_DMG#aseba-}}
+
+squashcopy () { rsync -a -L --no-perms --chmod=go-w "$@"; }
 
 ################################################
 #create directory with correct architecture
@@ -26,9 +29,9 @@ mkdir dmg_contents
 mkdir dmg_contents/Aseba
 mkdir dmg_contents/.background
 cd dmg_contents && ln -s /Applications Applications && cd ..
-cp $WORKSPACE/source/packager/Resources/background.png dmg_contents/.background/
-#cp $WORKSPACE/source/packager/Resources/Applications dmg_contents/
-cp $WORKSPACE/source/packager/Resources/DS_Store dmg_contents/.DS_Store #not very convincing for the moment
+squashcopy $WORKSPACE/source/packager/Resources/background.png dmg_contents/.background/
+#squashcopy $WORKSPACE/source/packager/Resources/Applications dmg_contents/
+squashcopy $WORKSPACE/source/packager/Resources/DS_Store dmg_contents/.DS_Store #not very convincing for the moment
 
 # Find current versions of some libraries
 DASHEL_LIBRARY=${DASHEL_LIBRARY:=$(otool -L $WORKSPACE/build/aseba/clients/studio/asebastudio|cut -d\  -f1|cut -c2-|grep libdashel)}
@@ -90,32 +93,32 @@ mkdir Simulations
 for asebaapps in "Aseba Studio.app" "Thymio Firmware Upgrader.app" "Aseba Studio for Thymio.app" "Thymio VPL.app" "Wireless Thymio Network Configurator.app"
 do
 	mkdir -p "$asebaapps/Contents/"{MacOS,Plugins/{imageformats,sqldrivers,iconengines},Resources,Frameworks,translations}
-	cp $WORKSPACE/source/packager/Resources/qt.conf "$asebaapps/Contents/Resources/"
+	squashcopy $WORKSPACE/source/packager/Resources/qt.conf "$asebaapps/Contents/Resources/"
 done
 cd Simulations
 for asebaapps in "Aseba Playground.app" "Aseba Challenge.app"
 do
 	mkdir -p "$asebaapps/Contents/"{MacOS,Plugins/{imageformats,sqldrivers,iconengines},Resources,Frameworks,translations}
-	cp $WORKSPACE/source/packager/Resources/qt.conf "$asebaapps/Contents/Resources/"
+	squashcopy $WORKSPACE/source/packager/Resources/qt.conf "$asebaapps/Contents/Resources/"
 done
 #copy resources into bundle folders
-cp -r $WORKSPACE/source/aseba/targets/playground/examples .
-cp $WORKSPACE/source/aseba/menu/osx/asebachallenge.icns Aseba\ Challenge.app/Contents/Resources
-cp $WORKSPACE/source/packager/Resources/Info.plist.challenge Aseba\ Challenge.app/Contents/Info.plist
-cp $WORKSPACE/source/aseba/menu/osx/asebaplayground.icns Aseba\ Playground.app/Contents/Resources
-cp $WORKSPACE/source/packager/Resources/Info.plist.playground Aseba\ Playground.app/Contents/Info.plist
+squashcopy $WORKSPACE/source/aseba/targets/playground/examples .
+squashcopy $WORKSPACE/source/aseba/menu/osx/asebachallenge.icns Aseba\ Challenge.app/Contents/Resources
+squashcopy $WORKSPACE/source/packager/Resources/Info.plist.challenge Aseba\ Challenge.app/Contents/Info.plist
+squashcopy $WORKSPACE/source/aseba/menu/osx/asebaplayground.icns Aseba\ Playground.app/Contents/Resources
+squashcopy $WORKSPACE/source/packager/Resources/Info.plist.playground Aseba\ Playground.app/Contents/Info.plist
 cd ..
-cp $WORKSPACE/source/aseba/menu/osx/thymioupgrader.icns Thymio\ Firmware\ Upgrader.app/Contents/Resources
-cp $WORKSPACE/source/packager/Resources/Info.plist.flasher Thymio\ Firmware\ Upgrader.app/Contents/Info.plist
-cp $WORKSPACE/source/aseba/menu/osx/asebastudio.icns Aseba\ Studio.app/Contents/Resources
-cp $WORKSPACE/source/packager/Resources/Info.plist.studio Aseba\ Studio.app/Contents/Info.plist
-cp $WORKSPACE/source/aseba/menu/osx/asebastudiothymio.icns Aseba\ Studio\ for\ Thymio.app/Contents/Resources
-cp $WORKSPACE/source/packager/Resources/Info.plist.asethym Aseba\ Studio\ for\ Thymio.app/Contents/Info.plist
-cp $WORKSPACE/source/aseba/menu/osx/thymiovpl.icns Thymio\ VPL.app/Contents/Resources
-cp $WORKSPACE/source/packager/Resources/Info.plist.vpl Thymio\ VPL.app/Contents/Info.plist
-cp $WORKSPACE/source/aseba/menu/osx/thymiownetconfig.icns Wireless\ Thymio\ Network\ Configurator.app/Contents/Resources
-cp $WORKSPACE/source/packager/Resources/Info.plist.netconfig Wireless\ Thymio\ Network\ Configurator.app/Contents/Info.plist
-#cp $WORKSPACE/source/packager/Resources/background.png .background/
+squashcopy $WORKSPACE/source/aseba/menu/osx/thymioupgrader.icns Thymio\ Firmware\ Upgrader.app/Contents/Resources
+squashcopy $WORKSPACE/source/packager/Resources/Info.plist.flasher Thymio\ Firmware\ Upgrader.app/Contents/Info.plist
+squashcopy $WORKSPACE/source/aseba/menu/osx/asebastudio.icns Aseba\ Studio.app/Contents/Resources
+squashcopy $WORKSPACE/source/packager/Resources/Info.plist.studio Aseba\ Studio.app/Contents/Info.plist
+squashcopy $WORKSPACE/source/aseba/menu/osx/asebastudiothymio.icns Aseba\ Studio\ for\ Thymio.app/Contents/Resources
+squashcopy $WORKSPACE/source/packager/Resources/Info.plist.asethym Aseba\ Studio\ for\ Thymio.app/Contents/Info.plist
+squashcopy $WORKSPACE/source/aseba/menu/osx/thymiovpl.icns Thymio\ VPL.app/Contents/Resources
+squashcopy $WORKSPACE/source/packager/Resources/Info.plist.vpl Thymio\ VPL.app/Contents/Info.plist
+squashcopy $WORKSPACE/source/aseba/menu/osx/thymiownetconfig.icns Wireless\ Thymio\ Network\ Configurator.app/Contents/Resources
+squashcopy $WORKSPACE/source/packager/Resources/Info.plist.netconfig Wireless\ Thymio\ Network\ Configurator.app/Contents/Info.plist
+#squashcopy $WORKSPACE/source/packager/Resources/background.png .background/
 
 #copy all necessary libraries, plugins etc in the package and make them link to the right places (relative paths whithin the app bundle)
 #otool -L will show where an executable of library links to, install_name_tool -change and -id can change the links and id
@@ -125,14 +128,14 @@ cd libraries
 mkdir -p translations
 for lang in "fr" "de" "es" "ja"
 do
-	rsync -a -L $QT_TRANSLATIONS_DIR/qt_$lang.qm translations/
+	squashcopy $QT_TRANSLATIONS_DIR/qt_$lang.qm translations/
 done
-cp $WORKSPACE/source/packager/Resources/qt_it.qm translations/
+squashcopy $WORKSPACE/source/packager/Resources/qt_it.qm translations/
 
 # then Qt frameworks
 for qtlib in "QtGui" "QtCore" "QtOpenGL" "QtXml" "QtNetwork" "QtHelp" "QtSql" "QtSvg" "QtWebKit"
 do
-	rsync -a -L $QT_LIBRARY_DIR/$qtlib.framework .
+	squashcopy $QT_LIBRARY_DIR/$qtlib.framework .
 	chmod -Rf u+w $qtlib.framework
 	rm -f $qtlib.framework/Versions/4/*_debug
 	rm -f $qtlib.framework/Versions/Current/*_debug
@@ -144,35 +147,35 @@ do
 done
 
 # Qwt framework
-rsync -a -L $QWT_LIBRARIES .
+squashcopy $QWT_LIBRARIES .
 chmod -Rf u+w qwt.framework
 install_name_tool -id  @executable_path/../Frameworks/qwt.framework/Versions/6/qwt qwt.framework/Versions/6/qwt
 rename_deps_and_sign qwt.framework/Versions/6/qwt
 
 # Dashel
-rsync -a -L $WORKSPACE/build/dashel/$DASHEL_LIBRARY .
+squashcopy $WORKSPACE/build/dashel/$DASHEL_LIBRARY .
 install_name_tool -id  @executable_path/../Frameworks/$DASHEL_LIBRARY $DASHEL_LIBRARY
 rename_deps_and_sign $DASHEL_LIBRARY
 
 # Qt plugins
-rsync -a -L $QT_LIBRARY_DIR/$QTLUCENE_LIBRARY .
+squashcopy $QT_LIBRARY_DIR/$QTLUCENE_LIBRARY .
 chmod -Rf u+w $QTLUCENE_LIBRARY
 install_name_tool -id @executable_path/../Frameworks/$QTLUCENE_LIBRARY $QTLUCENE_LIBRARY
 rename_deps_and_sign $QTLUCENE_LIBRARY
 
-rsync -a -L $QT_PLUGINS_DIR/sqldrivers/libqsqlite.dylib .
+squashcopy $QT_PLUGINS_DIR/sqldrivers/libqsqlite.dylib .
 install_name_tool -id @executable_path/../Plugins/sqldrivers/libraries/libqsqlite.dylib libqsqlite.dylib
 rename_deps_and_sign libqsqlite.dylib
 
 for formatplugin in "libqgif" "libqico" "libqjpeg" "libqmng" "libqsvg" "libqtga" "libqtiff"
 do
-	rsync -a -L $QT_PLUGINS_DIR/imageformats/$formatplugin.dylib .
+	squashcopy $QT_PLUGINS_DIR/imageformats/$formatplugin.dylib .
 	install_name_tool -id @executable_path/../Plugins/imageformats/$formatplugin.dylib $formatplugin.dylib 
 	rename_deps_and_sign $formatplugin.dylib
 done
 
 
-rsync -a -L $QT_PLUGINS_DIR/iconengines/libqsvgicon.dylib .
+squashcopy $QT_PLUGINS_DIR/iconengines/libqsvgicon.dylib .
 install_name_tool -id @executable_path/../Plugins/iconengines/libqsvgicon.dylib libqsvgicon.dylib 
 rename_deps_and_sign libqsvgicon.dylib
 
@@ -181,21 +184,21 @@ cd ..
 
 #copy all executables 
 
-cp $WORKSPACE/build/aseba/clients/cmd/asebacmd .
-cp $WORKSPACE/build/aseba/clients/dump/asebadump .
-cp $WORKSPACE/build/aseba/clients/replay/asebaplay .
-cp $WORKSPACE/build/aseba/clients/replay/asebarec .
-cp $WORKSPACE/build/aseba/clients/massloader/asebamassloader .
-cp $WORKSPACE/build/aseba/switches/switch/asebaswitch .
-cp $WORKSPACE/build/aseba/switches/http/asebahttp .
-cp $WORKSPACE/build/aseba/switches/http2/asebahttp2 .
-cp $WORKSPACE/build/aseba/targets/dummy/asebadummynode .
-cp $WORKSPACE/build/aseba/clients/studio/asebastudio .
-cp $WORKSPACE/build/aseba/clients/studio/thymiovpl .
-cp $WORKSPACE/build/aseba/targets/challenge/asebachallenge Simulations/
-cp $WORKSPACE/build/aseba/targets/playground/asebaplayground Simulations/
-cp $WORKSPACE/build/aseba/clients/thymioupgrader/thymioupgrader .
-cp $WORKSPACE/build/aseba/clients/thymiownetconfig/thymiownetconfig .
+squashcopy $WORKSPACE/build/aseba/clients/cmd/asebacmd .
+squashcopy $WORKSPACE/build/aseba/clients/dump/asebadump .
+squashcopy $WORKSPACE/build/aseba/clients/replay/asebaplay .
+squashcopy $WORKSPACE/build/aseba/clients/replay/asebarec .
+squashcopy $WORKSPACE/build/aseba/clients/massloader/asebamassloader .
+squashcopy $WORKSPACE/build/aseba/switches/switch/asebaswitch .
+squashcopy $WORKSPACE/build/aseba/switches/http/asebahttp .
+squashcopy $WORKSPACE/build/aseba/switches/http2/asebahttp2 .
+squashcopy $WORKSPACE/build/aseba/targets/dummy/asebadummynode .
+squashcopy $WORKSPACE/build/aseba/clients/studio/asebastudio .
+squashcopy $WORKSPACE/build/aseba/clients/studio/thymiovpl .
+squashcopy $WORKSPACE/build/aseba/targets/challenge/asebachallenge Simulations/
+squashcopy $WORKSPACE/build/aseba/targets/playground/asebaplayground Simulations/
+squashcopy $WORKSPACE/build/aseba/clients/thymioupgrader/thymioupgrader .
+squashcopy $WORKSPACE/build/aseba/clients/thymiownetconfig/thymiownetconfig .
 
 #make them link to the correct libraries
 rename_deps_and_sign "asebastudio" "thymioupgrader" "thymiovpl" "thymiownetconfig"
@@ -205,9 +208,9 @@ rename_deps_and_sign "asebastudio" "thymioupgrader" "thymiovpl" "thymiownetconfi
 mv -v asebastudio Aseba\ Studio.app/Contents/MacOS/
 mv -v thymioupgrader Thymio\ Firmware\ Upgrader.app/Contents/MacOS/
 mv -v thymiownetconfig Wireless\ Thymio\ Network\ Configurator.app/Contents/MacOS/ 
-cp $WORKSPACE/source/packager/Resources/asethym Aseba\ Studio\ for\ Thymio.app/contents/MacOS/ #simple executable bash script starting Studio with Thymio II as target
+squashcopy $WORKSPACE/source/packager/Resources/asethym Aseba\ Studio\ for\ Thymio.app/contents/MacOS/ #simple executable bash script starting Studio with Thymio II as target
 mv -v thymiovpl Thymio\ VPL.app/Contents/MacOS/
-cp $WORKSPACE/source/packager/Resources/launchthymiovpl Thymio\ VPL.app/contents/MacOS/ #simple executable bash script starting VPL with Thymio II as target
+squashcopy $WORKSPACE/source/packager/Resources/launchthymiovpl Thymio\ VPL.app/contents/MacOS/ #simple executable bash script starting VPL with Thymio II as target
 
 
 #create symlinks to the libraries from inside the app bundles
@@ -249,8 +252,8 @@ done
 cd Simulations
 #make them link to the correct libraries
 rename_deps_and_sign "asebachallenge" "asebaplayground"
-mv -v asebachallenge Aseba\ Challenge.app/Contents/MacOS/
-mv -v asebaplayground Aseba\ Playground.app/Contents/MacOS/
+squashcopy -v asebachallenge Aseba\ Challenge.app/Contents/MacOS/
+squashcopy -v asebaplayground Aseba\ Playground.app/Contents/MacOS/
 #create symlinks to the libraries from inside the app bundles
 for asebaapps in "Aseba Playground.app" "Aseba Challenge.app" 
 do
@@ -318,12 +321,23 @@ if [ -f "$WORKSPACE"/packager/osx/Makefile ]; then
 	 ASEBAHTTP="$WORKSPACE"/build/aseba/switches/http/asebahttp \
 	 ASEBASCRATCH="$WORKSPACE"/build/aseba/examples/clients/scratch/asebascratch
     mkdir -p "$WORKSPACE"/build/packager/dmg_contents/Aseba/Scratch
-    mv "$WORKSPACE/packager/osx"/*.app $WORKSPACE/build/packager/dmg_contents/Aseba/Scratch
-    rsync -a --exclude '.??*' --exclude tests --exclude playground \
+    squashcopy "$WORKSPACE/packager/osx"/*.app $WORKSPACE/build/packager/dmg_contents/Aseba/Scratch
+    squashcopy --exclude '.??*' --exclude tests --exclude playground \
 	  "$WORKSPACE"/packager/osx/inirobot/ \
 	  "$WORKSPACE"/build/packager/dmg_contents/Aseba/Scratch
-    rsync -a "$WORKSPACE"/packager/osx/Resources/DS_Store \
+    squashcopy "$WORKSPACE"/packager/osx/Resources/DS_Store \
 	  "$WORKSPACE"/build/packager/dmg_contents/Aseba/Scratch/.DS_Store
+
+    SCRATCH_DMG="$WORKSPACE/build/packager/$SCRATCH_DMG"
+    TEMP_DMG=${SCRATCH_DMG%.dmg}_temp.dmg
+    hdiutil create -srcfolder "$WORKSPACE"/build/packager/dmg_contents/Aseba/Scratch \
+	    -volname "Scratch2-ThymioII" -fs HFS+ -fsargs "-c c=64,a=16,e=16" \
+	    -format UDRW -size 40000k "$TEMP_DMG"
+    # hdiutil attach "$TEMP_DMG"
+    # chmod -Rf go-w /Volumes/Scratch2-ThymioII ; sync ; sync
+    # hdiutil detach /Volumes/Scratch2-ThymioII
+    hdiutil convert "$TEMP_DMG" -format UDZO -imagekey zlib-level=9 -o "$SCRATCH_DMG"
+    rm -f "$TEMP_DMG"
 fi
 
 ################################################
@@ -334,16 +348,16 @@ cd ../..
 LANG=en_US
 hdiutil create -srcfolder dmg_contents -volname "Aseba" -fs HFS+ -fsargs "-c c=64,a=16,e=16" -format UDRW -size 240000k temp.dmg
 #mount it
-hdiutil attach temp.dmg
-#change permissions
-chmod -Rf go-w /Volumes/Aseba
-sync
-sync
-#unmount
-hdiutil detach /Volumes/Aseba
+# hdiutil attach temp.dmg
+# #change permissions
+# chmod -Rf go-w /Volumes/Aseba
+# sync
+# sync
+# #unmount
+# hdiutil detach /Volumes/Aseba
 #make it into compressed dmg
-hdiutil convert temp.dmg  -format UDZO -imagekey zlib-level=9 -o "$OUTDMG"
+hdiutil convert temp.dmg  -format UDZO -imagekey zlib-level=9 -o "$ASEBA_DMG"
 #sign the dmg
 [ "${CODESIGN_CERT:0:25}" = "Developer ID Application:" ] &&
-	codesign --force --verify --verbose --sign "$CODESIGN_CERT" "$OUTDMG"
+	codesign --force --verify --verbose --sign "$CODESIGN_CERT" "$ASEBA_DMG"
 rm -f temp.dmg
