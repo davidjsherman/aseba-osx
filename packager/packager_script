@@ -312,15 +312,18 @@ mv -v asebamassloader bin/
 
 # Scratch2-ThymioII
 which -s platypus &&
-if [ -f "$WORKSPACE/packager/osx/Makefile" ]; then
-    make -C "$WORKSPACE/packager/osx" all \
-	 PORTLIST="$WORKSPACE/build/dashel/portlist" \
-	 ASEBAHTTP="$WORKSPACE/build/aseba/switches/http/asebahttp" \
-	 ASEBASCRATCH="$WORKSPACE/build/aseba/examples/clients/scratch/asebascratch"
-    mkdir -p $WORKSPACE/build/packager/dmg_contents/Aseba/Scratch
+if [ -f "$WORKSPACE"/packager/osx/Makefile ]; then
+    make -C "$WORKSPACE"/packager/osx all \
+	 PORTLIST="$WORKSPACE"/build/dashel/portlist \
+	 ASEBAHTTP="$WORKSPACE"/build/aseba/switches/http/asebahttp \
+	 ASEBASCRATCH="$WORKSPACE"/build/aseba/examples/clients/scratch/asebascratch
+    mkdir -p "$WORKSPACE"/build/packager/dmg_contents/Aseba/Scratch
     mv "$WORKSPACE/packager/osx"/*.app $WORKSPACE/build/packager/dmg_contents/Aseba/Scratch
-    rsync -a "$WORKSPACE/packager/osx"/Resources/ $WORKSPACE/build/packager/dmg_contents/Aseba/Scratch/
-    mv $WORKSPACE/build/packager/dmg_contents/Aseba/Scratch/{,.}DS_Store
+    rsync -a --exclude '.??*' --exclude tests --exclude playground \
+	  "$WORKSPACE"/packager/osx/inirobot/ \
+	  "$WORKSPACE"/build/packager/dmg_contents/Aseba/Scratch
+    rsync -a "$WORKSPACE"/packager/osx/Resources/DS_Store \
+	  "$WORKSPACE"/build/packager/dmg_contents/Aseba/Scratch/.DS_Store
 fi
 
 ################################################
