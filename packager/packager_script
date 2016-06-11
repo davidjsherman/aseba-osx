@@ -316,28 +316,12 @@ mv -v asebamassloader bin/
 # Scratch2-ThymioII
 which -s platypus &&
 if [ -f "$WORKSPACE"/packager/osx/Makefile ]; then
-    make -C "$WORKSPACE"/packager/osx all \
+    make -C "$WORKSPACE"/packager/osx all dmg \
 	 PORTLIST="$WORKSPACE"/build/dashel/portlist \
 	 ASEBAHTTP="$WORKSPACE"/build/aseba/switches/http/asebahttp \
 	 ASEBASCRATCH="$WORKSPACE"/build/aseba/examples/clients/scratch/asebascratch
-    mkdir -p "$WORKSPACE"/build/packager/dmg_contents/Aseba/Scratch
-    squashcopy "$WORKSPACE/packager/osx"/*.app $WORKSPACE/build/packager/dmg_contents/Aseba/Scratch
-    squashcopy --exclude '.??*' --exclude tests --exclude playground \
-	  "$WORKSPACE"/packager/osx/inirobot/ \
-	  "$WORKSPACE"/build/packager/dmg_contents/Aseba/Scratch
-    squashcopy "$WORKSPACE"/packager/osx/Resources/DS_Store \
-	  "$WORKSPACE"/build/packager/dmg_contents/Aseba/Scratch/.DS_Store
-
-    SCRATCH_DMG="$WORKSPACE/build/packager/$SCRATCH_DMG"
-    TEMP_DMG=${SCRATCH_DMG%.dmg}_temp.dmg
-    hdiutil create -srcfolder "$WORKSPACE"/build/packager/dmg_contents/Aseba/Scratch \
-	    -volname "Scratch2-ThymioII" -fs HFS+ -fsargs "-c c=64,a=16,e=16" \
-	    -format UDRW -size 40000k "$TEMP_DMG"
-    # hdiutil attach "$TEMP_DMG"
-    # chmod -Rf go-w /Volumes/Scratch2-ThymioII ; sync ; sync
-    # hdiutil detach /Volumes/Scratch2-ThymioII
-    hdiutil convert "$TEMP_DMG" -format UDZO -imagekey zlib-level=9 -o "$SCRATCH_DMG"
-    rm -f "$TEMP_DMG"
+    mv "$WORKSPACE"/packager/osx/Scratch "$WORKSPACE/build/packager/dmg_contents/Aseba/Scratch"
+    mv "$WORKSPACE"/packager/osx/Scratch.dmg "$WORKSPACE/build/packager/$SCRATCH_DMG"
 fi
 
 ################################################
