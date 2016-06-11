@@ -10,6 +10,6 @@
 	path = aseba
 	url = https://github.com/davidjsherman/aseba.git
 	branch = master
-[submodule "packager/osx"]
-	path = packager/osx
+[submodule "packager/inirobot-osx"]
+	path = packager/inirobot-osx
 	url = https://github.com/davidjsherman/inirobot-osx.git
