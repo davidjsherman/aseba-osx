@@ -13,3 +13,4 @@
 [submodule "packager/inirobot-osx"]
 	path = packager/inirobot-osx
 	url = https://github.com/davidjsherman/inirobot-osx.git
+	branch = master
