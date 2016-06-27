@@ -345,3 +345,4 @@ hdiutil convert temp.dmg  -format UDZO -imagekey zlib-level=9 -o "$ASEBA_DMG"
 [ "${CODESIGN_CERT:0:25}" = "Developer ID Application:" ] &&
 	codesign --force --verify --verbose --sign "$CODESIGN_CERT" "$ASEBA_DMG"
 rm -f temp.dmg
+rm -rf dmg_contents
