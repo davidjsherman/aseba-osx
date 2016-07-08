@@ -1,15 +1,15 @@
 [submodule "dashel"]
 	path = dashel
-	url = https://github.com/aseba-community/dashel.git
+	url = https://github.com/davidjsherman/dashel.git
 	branch = master
 [submodule "enki"]
 	path = enki
-	url = https://github.com/enki-community/enki.git
-	branch = master
+	url = https://github.com/davidjsherman/enki.git
+	branch = rpath
 [submodule "aseba"]
 	path = aseba
 	url = https://github.com/davidjsherman/aseba.git
-	branch = master
+	branch = rpath
 [submodule "packager/inirobot-osx"]
 	path = packager/inirobot-osx
 	url = https://github.com/davidjsherman/inirobot-osx.git

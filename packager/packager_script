@@ -34,7 +34,7 @@ squashcopy $WORKSPACE/source/packager/Resources/background.png dmg_contents/.bac
 squashcopy $WORKSPACE/source/packager/Resources/DS_Store dmg_contents/.DS_Store #not very convincing for the moment
 
 # Find current versions of some libraries
-DASHEL_LIBRARY=${DASHEL_LIBRARY:=$(otool -L $WORKSPACE/build/aseba/clients/studio/asebastudio|cut -d\  -f1|cut -c2-|grep libdashel)}
+DASHEL_LIBRARY=${DASHEL_LIBRARY:=$(perl -MCwd -e 'print Cwd::abs_path shift' $WORKSPACE/build/dashel/libdashel.dylib)}
 export DASHEL_LIBRARY=${DASHEL_LIBRARY##*/}
 LIBZ_LIBRARY=${LIBZ_LIBRARY:=$(ls -d $QT_LIBRARY_DIR/libz.*.dylib /usr/lib/libz.*.dylib 2>/dev/null|tail -1)}
 export LIBZ_LIBRARY=${LIBZ_LIBRARY##*/}
@@ -57,7 +57,7 @@ rename_deps_and_sign () {
 			      @executable_path/../Frameworks/$name.framework/Versions/4/$name \
 			      $resource
 	done
-	for name in $QT_LIBRARY_DIR/{$LIBZ_LIBRARY,$QTLUCENE_LIBRARY} $WORKSPACE/build/dashel/$DASHEL_LIBRARY
+	for name in $QT_LIBRARY_DIR/{$LIBZ_LIBRARY,$QTLUCENE_LIBRARY} $(otool -L $resource|cut -d\  -f1|cut -c2-|grep libdashel)
 	do
 	    install_name_tool -change $name @executable_path/../Frameworks/${name##*/} $resource
 	done
