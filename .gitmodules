@@ -5,12 +5,12 @@
 [submodule "enki"]
 	path = enki
 	url = https://github.com/davidjsherman/enki.git
-	branch = rpath
+	branch = old-api
 [submodule "aseba"]
 	path = aseba
 	url = https://github.com/davidjsherman/aseba.git
-	branch = rpath
+	branch = sensor-reporters
 [submodule "packager/inirobot-osx"]
 	path = packager/inirobot-osx
 	url = https://github.com/davidjsherman/inirobot-osx.git
-	branch = master
+	branch = sensor-reporters
