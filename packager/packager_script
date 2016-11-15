@@ -40,6 +40,7 @@ LIBZ_LIBRARY=${LIBZ_LIBRARY:=$(ls -d $QT_LIBRARY_DIR/libz.*.dylib /usr/lib/libz.
 export LIBZ_LIBRARY=${LIBZ_LIBRARY##*/}
 QTLUCENE_LIBRARY=${QTLUCENE_LIBRARY:=$(ls -d $QT_LIBRARY_DIR/libQtCLucene.*.dylib 2>/dev/null|tail -1)}
 export QTLUCENE_LIBRARY=${QTLUCENE_LIBRARY##*/}
+echo DASHEL_LIBRARY=$DASHEL_LIBRARY LIBZ_LIBRARY=$LIBZ_LIBRARY QTLUCENE_LIBRARY=$QTLUCENE_LIBRARY
 
 # Rename library dependencies in each of the given resources
 # Any renaming that doesn't apply will just be ignored by install_name_tool
@@ -224,7 +225,7 @@ do
 
 	ln -s ../../../libraries/qwt.framework
 	ln -s ../../../libraries/$DASHEL_LIBRARY
-	ln -s ../../../libraries/$QTCLUCENE_LIBRARY
+	ln -s ../../../libraries/$QTLUCENE_LIBRARY
 	
 	cd ../translations
 	for lang in "fr" "de" "it" "es" "ja"
@@ -265,7 +266,7 @@ do
 
 	ln -s ../../../../libraries/qwt.framework
 	ln -s ../../../../libraries/$DASHEL_LIBRARY
-	ln -s ../../../../libraries/$QTCLUCENE_LIBRARY
+	ln -s ../../../../libraries/$QTLUCENE_LIBRARY
 	
 	cd ../translations
 	for lang in "fr" "de" "it" "es" "ja"
