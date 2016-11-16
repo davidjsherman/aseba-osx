@@ -23,5 +23,7 @@
 	<string>thymiownetconfig.icns</string>
 	<key>LSMinimumSystemVersion</key>
 	<string>10.6.0</string>
+	<key>NSAppSleepDisabled</key>
+	<true/>
 </dict>
 </plist>
