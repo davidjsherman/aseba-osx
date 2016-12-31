@@ -1,7 +1,9 @@
 #!/bin/bash
-your_qt_path='/usr/local/Trolltech/Qt-4.8.7'
-your_qwt_path='/usr/local/qwt-6.1.2'
+echo your_qt_path=${your_qt_path:='/usr/local/Trolltech/Qt-4.8.7'}
+echo your_qwt_path=${your_qwt_path:='/usr/local/qwt-6.1.2'}
+echo your_certificate=${your_certificate:='Developer ID Application: Association Mobsya (P97H86YL8K)'}
 
+[ "$your_certificate" = "none" ] && function codesign() { true; } # if no certificate, codesign is a no-op
 
 ################################################
 #create directory with correct architecture
@@ -9,8 +11,8 @@ your_qwt_path='/usr/local/qwt-6.1.2'
 cd $WORKSPACE/build/packager
 
 #first, remove previous package
-rm -rf dmg_contents
-rm *.dmg
+rm -f -rf dmg_contents
+rm -f *.dmg
 
 #create directory with the contents of the dmg: Aseba folder (which will be placed in the /Applications folder of the user), alias to applications, background picture, .DS_store file for dmg settings and appearance
 mkdir dmg_contents
@@ -86,11 +88,11 @@ cp $WORKSPACE/source/packager/Resources/qt_it.qm translations/
 # then Qt frameworks
 for qtlib in "QtGui" "QtCore" "QtOpenGL" "QtXml" "QtNetwork" "QtHelp" "QtSql" "QtSvg" "QtWebKit"
 do
-	cp -R $your_qt_path/lib/$qtlib.framework .
-	rm $qtlib.framework/Versions/4/*_debug
-	rm $qtlib.framework/Versions/Current/*_debug
-	rm $qtlib.framework/*_debug
-	rm $qtlib.framework/*_debug.prl
+	cp -R $your_qt_path/lib/$qtlib.framework . && chmod -Rf u+w $qtlib.framework
+	rm -f $qtlib.framework/Versions/4/*_debug
+	rm -f $qtlib.framework/Versions/Current/*_debug
+	rm -f $qtlib.framework/*_debug
+	rm -f $qtlib.framework/*_debug.prl
 
 	install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4/QtSql $qtlib.framework/Versions/4/$qtlib
 	install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $qtlib.framework/Versions/4/$qtlib
@@ -103,42 +105,42 @@ do
 	install_name_tool -id  @executable_path/../Frameworks/$qtlib.framework/Versions/4/$qtlib $qtlib.framework/Versions/4/$qtlib
 	otool -L $qtlib.framework/Versions/4/$qtlib 
 	
-	codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" $qtlib.framework/Versions/4/$qtlib
+	codesign --force --verify --verbose --sign "$your_certificate" $qtlib.framework/Versions/4/$qtlib
 done
 
 # Qwt framework
-cp  -R $your_qwt_path/lib/qwt.framework .
+cp  -R $your_qwt_path/lib/qwt.framework . && chmod -Rf u+w qwt.framework
 install_name_tool -id  @executable_path/../Frameworks/qwt.framework/Versions/6/qwt qwt.framework/Versions/6/qwt
 install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui qwt.framework/Versions/6/qwt
 install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore qwt.framework/Versions/6/qwt
 install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg qwt.framework/Versions/6/qwt
 install_name_tool -change $your_qt_path/lib/QtOpenGL.framework/Versions/4/QtOpenGL @executable_path/../Frameworks/QtOpenGL.framework/Versions/4/QtOpenGL qwt.framework/Versions/6/qwt
 otool -L qwt.framework/Versions/6/qwt
-codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" qwt.framework/Versions/6/qwt
+codesign --force --verify --verbose --sign "$your_certificate" qwt.framework/Versions/6/qwt
 
 # Dashel
-cp $WORKSPACE/build/dashel/libdashel.1.2.0.dylib .
+cp $WORKSPACE/build/dashel/libdashel.1.2.0.dylib . && chmod -Rf u+w libdashel.1.2.0.dylib
 install_name_tool -id  @executable_path/../Frameworks/libdashel.1.2.0.dylib libdashel.1.2.0.dylib
 otool -L libdashel.1.2.0.dylib
-codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" libdashel.1.2.0.dylib
+codesign --force --verify --verbose --sign "$your_certificate" libdashel.1.2.0.dylib
 
 # Qt plugins
-cp $your_qt_path/lib/libQtCLucene.4.8.7.dylib .
+cp $your_qt_path/lib/libQtCLucene.4.8.7.dylib . && chmod -Rf u+w libQtCLucene.4.8.7.dylib
 install_name_tool -id @executable_path/../Frameworks/libQtCLucene.4.8.7.dylib libQtCLucene.4.8.7.dylib
 install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libQtCLucene.4.8.7.dylib
 otool -L libQtCLucene.4.8.7.dylib
-codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" libQtCLucene.4.8.7.dylib
+codesign --force --verify --verbose --sign "$your_certificate" libQtCLucene.4.8.7.dylib
 
-cp $your_qt_path/plugins/sqldrivers/libqsqlite.dylib .
+cp $your_qt_path/plugins/sqldrivers/libqsqlite.dylib . && chmod -Rf u+w libqsqlite.dylib
 install_name_tool -id @executable_path/../Plugins/sqldrivers/libraries/libqsqlite.dylib libqsqlite.dylib 
 install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libqsqlite.dylib
 install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4/QtSql libqsqlite.dylib
 otool -L libqsqlite.dylib
-codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" libqsqlite.dylib
+codesign --force --verify --verbose --sign "$your_certificate" libqsqlite.dylib
 
 for formatplugin in "libqgif" "libqico" "libqjpeg" "libqmng" "libqsvg" "libqtga" "libqtiff"
 do
-	cp $your_qt_path/plugins/imageformats/$formatplugin.dylib .
+	cp $your_qt_path/plugins/imageformats/$formatplugin.dylib . && chmod -Rf u+w $formatplugin.dylib
 	install_name_tool -id @executable_path/../Plugins/imageformats/$formatplugin.dylib $formatplugin.dylib 
 	install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore $formatplugin.dylib
 	install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $formatplugin.dylib
@@ -146,18 +148,18 @@ do
 	install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml $formatplugin.dylib
 	install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg $formatplugin.dylib
 	otool -L $formatplugin.dylib
-	codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" $formatplugin.dylib
+	codesign --force --verify --verbose --sign "$your_certificate" $formatplugin.dylib
 done
 
 
-cp $your_qt_path/plugins/iconengines/libqsvgicon.dylib .
+cp $your_qt_path/plugins/iconengines/libqsvgicon.dylib . && chmod -Rf u+w libqsvgicon.dylib
 install_name_tool -id @executable_path/../Plugins/iconengines/libqsvgicon.dylib libqsvgicon.dylib 
 install_name_tool -change $your_qt_path/lib/QtCore.framework/Versions/4/QtCore @executable_path/../Frameworks/QtCore.framework/Versions/4/QtCore libqsvgicon.dylib
 install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui libqsvgicon.dylib
 install_name_tool -change $your_qt_path/lib/QtXml.framework/Versions/4/QtXml @executable_path/../Frameworks/QtXml.framework/Versions/4/QtXml libqsvgicon.dylib
 install_name_tool -change $your_qt_path/lib/QtSvg.framework/Versions/4/QtSvg @executable_path/../Frameworks/QtSvg.framework/Versions/4/QtSvg libqsvgicon.dylib
 otool -L libqsvgicon.dylib
-codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" libqsvgicon.dylib
+codesign --force --verify --verbose --sign "$your_certificate" libqsvgicon.dylib
 
 cd ..
 
@@ -179,10 +181,12 @@ cp $WORKSPACE/build/aseba/targets/challenge/asebachallenge Simulations/
 cp $WORKSPACE/build/aseba/targets/playground/asebaplayground Simulations/
 cp $WORKSPACE/build/aseba/clients/thymioupgrader/thymioupgrader .
 cp $WORKSPACE/build/aseba/clients/thymiownetconfig/thymiownetconfig .
+chmod -Rf 0755 .
 
 #make them link to the correct libraries
 for asebaexec in "asebastudio" "thymioupgrader" "thymiovpl" "thymiownetconfig"
 do
+	chmod 0755 $asebaexec
 	install_name_tool -change $your_qt_path/lib/QtHelp.framework/Versions/4/QtHelp @executable_path/../Frameworks/QtHelp.framework/Versions/4/QtHelp $asebaexec
 	install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4/QtSql $asebaexec
 	install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $asebaexec
@@ -195,7 +199,7 @@ do
 	install_name_tool -change qwt.framework/Versions/6/qwt @executable_path/../Frameworks/qwt.framework/Versions/6/qwt $asebaexec
 	install_name_tool -change @rpath/libdashel.1.dylib @executable_path/../Frameworks/libdashel.1.2.0.dylib $asebaexec
 	otool -L $asebaexec
-	codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" $asebaexec
+	codesign --force --verify --verbose --sign "$your_certificate" $asebaexec
 done
 
 
@@ -240,13 +244,14 @@ do
 	hln ../../../../libraries/libqsqlite.dylib libqsqlite.dylib
 	cd ../../../..
 	
-	codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" "$asebaapps"
+	codesign --force --verify --verbose --sign "$your_certificate" "$asebaapps"
 done
 
 cd Simulations
 #make them link to the correct libraries
 for asebaexec in "asebachallenge" "asebaplayground"
 do
+	chmod 0755 $asebaexec
 	install_name_tool -change $your_qt_path/lib/QtHelp.framework/Versions/4/QtHelp @executable_path/../Frameworks/QtHelp.framework/Versions/4/QtHelp $asebaexec
 	install_name_tool -change $your_qt_path/lib/QtSql.framework/Versions/4/QtSql @executable_path/../Frameworks/QtSql.framework/Versions/4/QtSql $asebaexec
 	install_name_tool -change $your_qt_path/lib/QtGui.framework/Versions/4/QtGui @executable_path/../Frameworks/QtGui.framework/Versions/4/QtGui $asebaexec
@@ -259,7 +264,7 @@ do
 	install_name_tool -change qwt.framework/Versions/6/qwt @executable_path/../Frameworks/qwt.framework/Versions/6/qwt $asebaexec
 	install_name_tool -change @rpath/libdashel.1.dylib @executable_path/../Frameworks/libdashel.1.2.0.dylib $asebaexec
 	otool -L $asebaexec
-	codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" $asebaexec
+	codesign --force --verify --verbose --sign "$your_certificate" $asebaexec
 done
 mv asebachallenge Aseba\ Challenge.app/Contents/MacOS/
 mv asebaplayground Aseba\ Playground.app/Contents/MacOS/
@@ -299,7 +304,7 @@ do
 	hln ../../../../bin/asebaswitch asebaswitch
 	cd ../../..
 	
-	codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" "$asebaapps"
+	codesign --force --verify --verbose --sign "$your_certificate" "$asebaapps"
 done
 cd ..
 #change links of executables that are not in an app bundle = those that will be used rather in command line and do not need a nice icon
@@ -315,7 +320,7 @@ do
 	install_name_tool -change $your_qt_path/lib/QtNetwork.framework/Versions/4/QtNetwork @executable_path/../libraries/QtNetwork.framework/Versions/4/QtNetwork $asebaexec
 
 	otool -L $asebaexec
-	codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" $asebaexec
+	codesign --force --verify --verbose --sign "$your_certificate" $asebaexec
 done
 
 
@@ -346,5 +351,6 @@ hdiutil detach /Volumes/Aseba
 #make it into compressed dmg
 hdiutil convert temp.dmg  -format UDZO -imagekey zlib-level=9 -o Aseba-$BUILD_ID.dmg
 #sign the dmg
-codesign --force --verify --verbose --sign "Developer ID Application: Association Mobsya (P97H86YL8K)" Aseba-$BUILD_ID.dmg
-rm temp.dmg
+codesign --force --verify --verbose --sign "$your_certificate" Aseba-$BUILD_ID.dmg
+rm -f temp.dmg
+exit 0
