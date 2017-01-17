@@ -335,6 +335,17 @@ mv asebahttp bin/
 mv asebahttp2 bin/
 mv asebamassloader bin/
 
+# Scratch2-ThymioII
+which -s platypus &&
+if [ -f "$WORKSPACE"/packager/inirobot-osx/Makefile ]; then
+    make -C "$WORKSPACE"/packager/inirobot-osx bundle archive \
+        PORTLIST="$WORKSPACE"/build/dashel/portlist \
+        ASEBAHTTP="$WORKSPACE"/build/aseba/switches/http/asebahttp \
+        ASEBASCRATCH="$WORKSPACE"/build/aseba/examples/clients/scratch/asebascratch
+    mv "$WORKSPACE"/packager/inirobot-osx/Scratch "$WORKSPACE/build/packager/dmg_contents/Aseba/Scratch"
+    mv "$WORKSPACE"/packager/inirobot-osx/Scratch.dmg "$WORKSPACE/build/packager/ThymioScratch-"$BUILD_ID.dmg
+fi
+
 # time to create a dmg
 cd ../..
 

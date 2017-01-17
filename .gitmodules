@@ -10,3 +10,7 @@
 	path = aseba
 	url = https://github.com/aseba-community/aseba.git
 	branch = master
+[submodule "packager/inirobot-osx"]
+       path = packager/inirobot-osx
+       url = https://github.com/davidjsherman/inirobot-osx.git
+       branch = sensor-reporters
